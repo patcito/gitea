@@ -918,3 +918,9 @@ QUEUE_CONN_STR = "addrs=127.0.0.1:6379 db=0"
 MAX_ATTEMPTS = 3
 ; Backoff time per http/https request retry (seconds)
 RETRY_BACKOFF = 3
+
+[storage]
+; URL of bucket where files are stored (such as attachments, avatars, etc.).
+; If unset, `BUCKET_URL` defaults to `file:// <AppWorkPath>`.
+; Consult https://gocloud.dev/howto/blob for URL format for various cloud providers and their credential paths and env variables.
+BUCKET_URL =

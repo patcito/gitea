@@ -22,6 +22,7 @@ import (
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/repository"
 	"code.gitea.io/gitea/modules/setting"
+	"code.gitea.io/gitea/modules/storage"
 	"code.gitea.io/gitea/modules/timeutil"
 	"code.gitea.io/gitea/modules/validation"
 	"code.gitea.io/gitea/routers/utils"
@@ -29,7 +30,6 @@ import (
 	mirror_service "code.gitea.io/gitea/services/mirror"
 	repo_service "code.gitea.io/gitea/services/repository"
 
-	"github.com/unknwon/com"
 	"mvdan.cc/xurls/v2"
 )
 
@@ -824,7 +824,12 @@ func UpdateAvatarSetting(ctx *context.Context, form auth.AvatarForm) error {
 		// No avatar is uploaded and we not removing it here.
 		// No random avatar generated here.
 		// Just exit, no action.
-		if !com.IsFile(ctxRepo.CustomAvatarPath()) {
+		fs := storage.FileStorage{
+			Ctx:      ctx.Req.Context(),
+			Path:     setting.RepositoryAvatarUploadPath,
+			FileName: ctxRepo.Avatar,
+		}
+		if !fs.Exists() {
 			log.Trace("No avatar was uploaded for repo: %d. Default icon will appear instead.", ctxRepo.ID)
 		}
 		return nil

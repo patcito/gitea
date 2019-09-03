@@ -54,7 +54,6 @@ require (
 	github.com/issue9/identicon v0.0.0-20160320065130-d36b54562f4c
 	github.com/jaytaylor/html2text v0.0.0-20160923191438-8fb95d837f7d
 	github.com/jmhodges/levigo v1.0.0 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20170619183022-cd60e84ee657
 	github.com/keybase/go-crypto v0.0.0-20170605145657-00ac4db533f6
 	github.com/klauspost/compress v1.9.2
@@ -63,7 +62,7 @@ require (
 	github.com/lunny/dingtalk_webhook v0.0.0-20171025031554-e3534c89ef96
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/markbates/goth v1.56.0
-	github.com/mattn/go-isatty v0.0.7
+	github.com/mattn/go-isatty v0.0.8
 	github.com/mattn/go-oci8 v0.0.0-20190320171441-14ba190cf52d // indirect
 	github.com/mattn/go-sqlite3 v1.11.0
 	github.com/mcuadros/go-version v0.0.0-20190308113854-92cdf37c5b75
@@ -96,6 +95,7 @@ require (
 	github.com/urfave/cli v1.20.0
 	github.com/yohcop/openid-go v0.0.0-20160914080427-2c050d2dae53
 	go.etcd.io/bbolt v1.3.3 // indirect
+	gocloud.dev v0.16.0
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20191101175033-0deb6923b6d9
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
