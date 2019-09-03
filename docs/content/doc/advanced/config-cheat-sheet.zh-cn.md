@@ -278,6 +278,10 @@ IS_INPUT_FILE = false
 - `MAX_ATTEMPTS`: **3**: 在迁移过程中的 http/https 请求重试次数。
 - `RETRY_BACKOFF`: **3**: 等待下一次重试的时间，单位秒。
 
+## Storage (`storage`)
+
+- `BUCKET_URL`: 存储文件的存储桶的URL（例如附件，头像等）. 如果未设置，`BUCKET_URL`默认为`file：// <AppWorkPath>`. 有关各种云提供商及其凭证路径和env变量的URL格式，请参阅https://gocloud.dev/howto/blob .
+
 ## Other (`other`)
 
 - `SHOW_FOOTER_BRANDING`: 为真则在页面底部显示Gitea的字样。

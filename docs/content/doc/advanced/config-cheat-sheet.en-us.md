@@ -618,6 +618,10 @@ You may redefine `ELEMENT`, `ALLOW_ATTR`, and `REGEXP` multiple times; each time
 - `MAX_ATTEMPTS`: **3**: Max attempts per http/https request on migrations.
 - `RETRY_BACKOFF`: **3**: Backoff time per http/https request retry (seconds)
 
+## Storage (`storage`)
+
+- `BUCKET_URL`: URL of bucket where files are stored (such as attachments, avatars, etc.). If unset, `BUCKET_URL` defaults to `file:// <AppWorkPath>`. Consult https://gocloud.dev/howto/blob for URL format for various cloud providers and their credential paths and env variables.
+
 ## Other (`other`)
 
 - `SHOW_FOOTER_BRANDING`: **false**: Show Gitea branding in the footer.
