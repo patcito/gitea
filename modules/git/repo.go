@@ -18,7 +18,8 @@ import (
 	"time"
 
 	"github.com/unknwon/com"
-	"gopkg.in/src-d/go-billy.v4/osfs"
+	desfacer "gopkg.in/jfontan/go-billy-desfacer.v0"
+	"gopkg.in/src-d/go-billy.v4"
 	gogit "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
@@ -103,16 +104,20 @@ func OpenRepository(repoPath string) (*Repository, error) {
 		return nil, errors.New("no such file or directory")
 	}
 
-	fs := osfs.New(repoPath)
-	_, err = fs.Stat(".git")
+	var billyFs billy.Filesystem = desfacer.NewPath(fs.AppFs, repoPath)
+	billyFs, err = billyFs.Chroot(repoPath)
+	if err != nil {
+		return nil, err
+	}
+	_, err = billyFs.Stat(".git")
 	if err == nil {
-		fs, err = fs.Chroot(".git")
+		billyFs, err = billyFs.Chroot(".git")
 		if err != nil {
 			return nil, err
 		}
 	}
-	storage := filesystem.NewStorageWithOptions(fs, cache.NewObjectLRUDefault(), filesystem.Options{KeepDescriptors: true})
-	gogitRepo, err := gogit.Open(storage, fs)
+	storage := filesystem.NewStorageWithOptions(billyFs, cache.NewObjectLRUDefault(), filesystem.Options{KeepDescriptors: true})
+	gogitRepo, err := gogit.Open(storage, billyFs)
 	if err != nil {
 		return nil, err
 	}
