@@ -24,7 +24,7 @@ import (
 	"github.com/markbates/goth/providers/google"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/markbates/goth/providers/twitter"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"xorm.io/xorm"
 )
 
@@ -77,7 +77,7 @@ func Auth(provider string, request *http.Request, response http.ResponseWriter) 
 
 	// don't use the default gothic begin handler to prevent issues when some error occurs
 	// normally the gothic library will write some custom stuff to the response instead of our own nice error page
-	//gothic.BeginAuthHandler(response, request)
+	// gothic.BeginAuthHandler(response, request)
 
 	url, err := gothic.GetAuthURL(response, request)
 	if err == nil {

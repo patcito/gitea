@@ -28,7 +28,7 @@ func listGPGKeys(ctx *context.APIContext, uid int64) {
 	ctx.JSON(http.StatusOK, &apiKeys)
 }
 
-//ListGPGKeys get the GPG key list of a user
+// ListGPGKeys get the GPG key list of a user
 func ListGPGKeys(ctx *context.APIContext) {
 	// swagger:operation GET /users/{username}/gpg_keys user userListGPGKeys
 	// ---
@@ -52,7 +52,7 @@ func ListGPGKeys(ctx *context.APIContext) {
 	listGPGKeys(ctx, user.ID)
 }
 
-//ListMyGPGKeys get the GPG key list of the authenticated user
+// ListMyGPGKeys get the GPG key list of the authenticated user
 func ListMyGPGKeys(ctx *context.APIContext) {
 	// swagger:operation GET /user/gpg_keys user userCurrentListGPGKeys
 	// ---
@@ -66,7 +66,7 @@ func ListMyGPGKeys(ctx *context.APIContext) {
 	listGPGKeys(ctx, ctx.User.ID)
 }
 
-//GetGPGKey get the GPG key based on a id
+// GetGPGKey get the GPG key based on a id
 func GetGPGKey(ctx *context.APIContext) {
 	// swagger:operation GET /user/gpg_keys/{id} user userCurrentGetGPGKey
 	// ---
@@ -114,7 +114,7 @@ type swaggerUserCurrentPostGPGKey struct {
 	Form api.CreateGPGKeyOption
 }
 
-//CreateGPGKey create a GPG key belonging to the authenticated user
+// CreateGPGKey create a GPG key belonging to the authenticated user
 func CreateGPGKey(ctx *context.APIContext, form api.CreateGPGKeyOption) {
 	// swagger:operation POST /user/gpg_keys user userCurrentPostGPGKey
 	// ---
@@ -132,7 +132,7 @@ func CreateGPGKey(ctx *context.APIContext, form api.CreateGPGKeyOption) {
 	CreateUserGPGKey(ctx, form, ctx.User.ID)
 }
 
-//DeleteGPGKey remove a GPG key belonging to the authenticated user
+// DeleteGPGKey remove a GPG key belonging to the authenticated user
 func DeleteGPGKey(ctx *context.APIContext) {
 	// swagger:operation DELETE /user/gpg_keys/{id} user userCurrentDeleteGPGKey
 	// ---

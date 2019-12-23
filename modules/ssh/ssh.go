@@ -19,6 +19,7 @@ import (
 	"syscall"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 
@@ -167,7 +168,7 @@ func Listen(host string, port int, ciphers []string, keyExchanges []string, macs
 	if !com.IsExist(keyPath) {
 		filePath := filepath.Dir(keyPath)
 
-		if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(filePath, os.ModePerm); err != nil {
 			log.Error("Failed to create dir %s: %v", filePath, err)
 		}
 
@@ -197,7 +198,7 @@ func GenKeyPair(keyPath string) error {
 	}
 
 	privateKeyPEM := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)}
-	f, err := os.OpenFile(keyPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := fs.AppFs.OpenFile(keyPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -218,7 +219,7 @@ func GenKeyPair(keyPath string) error {
 	}
 
 	public := gossh.MarshalAuthorizedKey(pub)
-	p, err := os.OpenFile(keyPath+".pub", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	p, err := fs.AppFs.OpenFile(keyPath+".pub", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}

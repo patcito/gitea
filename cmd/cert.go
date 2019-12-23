@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/urfave/cli"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 // CmdCert represents the available cert sub-command.
@@ -180,7 +182,7 @@ func runCert(c *cli.Context) error {
 	}
 	log.Println("Written cert.pem")
 
-	keyOut, err := os.OpenFile("key.pem", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	keyOut, err := fs.AppFs.OpenFile("key.pem", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		log.Fatalf("Failed to open key.pem for writing: %v", err)
 	}

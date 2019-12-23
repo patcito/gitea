@@ -16,7 +16,7 @@ import (
 	api "code.gitea.io/gitea/modules/structs"
 )
 
-//checkIsValidRequest check if it a valid request in case of bad request it write the response to ctx.
+// checkIsValidRequest check if it a valid request in case of bad request it write the response to ctx.
 func checkIsValidRequest(ctx *context.Context) bool {
 	if !setting.LFS.StartServer {
 		writeStatus(ctx, 404)
@@ -87,9 +87,9 @@ func GetListLockHandler(ctx *context.Context) {
 		})
 		return
 	}
-	//TODO handle query cursor and limit
+	// TODO handle query cursor and limit
 	id := ctx.Query("id")
-	if id != "" { //Case where we request a specific id
+	if id != "" { // Case where we request a specific id
 		v, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
 			ctx.JSON(400, api.LFSLockError{
@@ -103,13 +103,13 @@ func GetListLockHandler(ctx *context.Context) {
 	}
 
 	path := ctx.Query("path")
-	if path != "" { //Case where we request a specific id
+	if path != "" { // Case where we request a specific id
 		lock, err := models.GetLFSLock(repository, path)
 		handleLockListOut(ctx, repository, lock, err)
 		return
 	}
 
-	//If no query params path or id
+	// If no query params path or id
 	lockList, err := models.GetLFSLockByRepoID(repository.ID, 0, 0)
 	if err != nil {
 		ctx.JSON(500, api.LFSLockError{
@@ -219,7 +219,7 @@ func VerifyLockHandler(ctx *context.Context) {
 		return
 	}
 
-	//TODO handle body json cursor and limit
+	// TODO handle body json cursor and limit
 	lockList, err := models.GetLFSLockByRepoID(repository.ID, 0, 0)
 	if err != nil {
 		ctx.JSON(500, api.LFSLockError{

@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 
@@ -20,7 +21,7 @@ import (
 )
 
 func useNewNameAvatars(x *xorm.Engine) error {
-	d, err := os.Open(setting.AvatarUploadPath)
+	d, err := fs.AppFs.Open(setting.AvatarUploadPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Nothing to do if AvatarUploadPath does not exist
@@ -60,7 +61,7 @@ func useNewNameAvatars(x *xorm.Engine) error {
 		}
 
 		user.Avatar = fmt.Sprintf("%x", md5.Sum(bs))
-		err = os.Rename(fPath, filepath.Join(setting.AvatarUploadPath, user.Avatar))
+		err = fs.AppFs.Rename(fPath, filepath.Join(setting.AvatarUploadPath, user.Avatar))
 		if err != nil {
 			return err
 		}

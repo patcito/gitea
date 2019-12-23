@@ -9,8 +9,9 @@ import (
 	"net/url"
 	"testing"
 
-	"code.gitea.io/gitea/modules/setting"
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/modules/setting"
 )
 
 func TestWebhookProxy(t *testing.T) {

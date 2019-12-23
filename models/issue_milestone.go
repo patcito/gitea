@@ -7,10 +7,11 @@ package models
 import (
 	"fmt"
 
+	"xorm.io/builder"
+
 	"code.gitea.io/gitea/modules/setting"
 	api "code.gitea.io/gitea/modules/structs"
 	"code.gitea.io/gitea/modules/timeutil"
-	"xorm.io/builder"
 
 	"xorm.io/xorm"
 )

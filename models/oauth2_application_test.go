@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//////////////////// Application
+// ////////////////// Application
 
 func TestOAuth2Application_GenerateClientSecret(t *testing.T) {
 	assert.NoError(t, PrepareTestDatabase())
@@ -101,7 +101,7 @@ func TestOAuth2Application_CreateGrant(t *testing.T) {
 	assert.Equal(t, int64(1), grant.ApplicationID)
 }
 
-//////////////////// Grant
+// ////////////////// Grant
 
 func TestGetOAuth2GrantByID(t *testing.T) {
 	assert.NoError(t, PrepareTestDatabase())
@@ -154,7 +154,7 @@ func TestRevokeOAuth2Grant(t *testing.T) {
 	AssertNotExistsBean(t, &OAuth2Grant{ID: 1, UserID: 1})
 }
 
-//////////////////// Authorization Code
+// ////////////////// Authorization Code
 
 func TestGetOAuth2AuthorizationByCode(t *testing.T) {
 	assert.NoError(t, PrepareTestDatabase())

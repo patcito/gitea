@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"github.com/unknwon/com"
@@ -62,7 +62,7 @@ func generateAndMigrateGitHookChains(x *xorm.Engine) (err error) {
 						// compare md5sums of hooks
 						if com.IsExist(oldHookPath) {
 
-							f, err := os.Open(oldHookPath)
+							f, err := fs.AppFs.Open(oldHookPath)
 							if err != nil {
 								return fmt.Errorf("cannot open old hook file '%s': %v", oldHookPath, err)
 							}

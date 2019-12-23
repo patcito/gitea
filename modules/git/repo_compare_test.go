@@ -7,18 +7,19 @@ package git
 import (
 	"bytes"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 func TestGetFormatPatch(t *testing.T) {
 	bareRepo1Path := filepath.Join(testReposDir, "repo1_bare")
 	clonedPath, err := cloneRepo(bareRepo1Path, testReposDir, "repo1_TestGetFormatPatch")
 	assert.NoError(t, err)
-	defer os.RemoveAll(clonedPath)
+	defer fs.AppFs.RemoveAll(clonedPath)
 	repo, err := OpenRepository(clonedPath)
 	assert.NoError(t, err)
 	defer repo.Close()

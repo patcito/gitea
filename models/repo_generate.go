@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/util"
@@ -73,7 +74,7 @@ func (gt GiteaTemplate) Globs() []glob.Glob {
 
 func checkGiteaTemplate(tmpDir string) (*GiteaTemplate, error) {
 	gtPath := filepath.Join(tmpDir, ".gitea", "template")
-	if _, err := os.Stat(gtPath); os.IsNotExist(err) {
+	if _, err := fs.AppFs.Stat(gtPath); os.IsNotExist(err) {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
@@ -114,7 +115,7 @@ func generateRepoCommit(e Engine, repo, templateRepo, generateRepo *Repository, 
 		return fmt.Errorf("git clone: %v", err)
 	}
 
-	if err := os.RemoveAll(path.Join(tmpDir, ".git")); err != nil {
+	if err := fs.AppFs.RemoveAll(path.Join(tmpDir, ".git")); err != nil {
 		return fmt.Errorf("remove git dir: %v", err)
 	}
 
@@ -124,7 +125,7 @@ func generateRepoCommit(e Engine, repo, templateRepo, generateRepo *Repository, 
 		return fmt.Errorf("checkGiteaTemplate: %v", err)
 	}
 
-	if err := os.Remove(gt.Path); err != nil {
+	if err := fs.AppFs.Remove(gt.Path); err != nil {
 		return fmt.Errorf("remove .giteatemplate: %v", err)
 	}
 
@@ -185,7 +186,7 @@ func generateRepository(e Engine, repo, templateRepo, generateRepo *Repository) 
 	}
 
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
+		if err := fs.AppFs.RemoveAll(tmpDir); err != nil {
 			log.Error("RemoveAll: %v", err)
 		}
 	}()

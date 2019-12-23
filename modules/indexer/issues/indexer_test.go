@@ -5,12 +5,12 @@
 package issues
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"github.com/stretchr/testify/assert"
@@ -23,8 +23,8 @@ func TestMain(m *testing.M) {
 func TestBleveSearchIssues(t *testing.T) {
 	assert.NoError(t, models.PrepareTestDatabase())
 
-	os.RemoveAll(setting.Indexer.IssueQueueDir)
-	os.RemoveAll(setting.Indexer.IssuePath)
+	fs.AppFs.RemoveAll(setting.Indexer.IssueQueueDir)
+	fs.AppFs.RemoveAll(setting.Indexer.IssuePath)
 	setting.Indexer.IssueType = "bleve"
 	InitIssueIndexer(true)
 

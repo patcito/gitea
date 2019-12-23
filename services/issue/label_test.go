@@ -7,8 +7,9 @@ package issue
 import (
 	"testing"
 
-	"code.gitea.io/gitea/models"
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/models"
 )
 
 func TestIssue_AddLabels(t *testing.T) {

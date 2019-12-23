@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 
 	ini "gopkg.in/ini.v1"
@@ -23,7 +24,7 @@ var filenameSuffix = ""
 type defaultLogOptions struct {
 	levelName      string // LogLevel
 	flags          string
-	filename       string //path.Join(LogRootPath, "gitea.log")
+	filename       string // path.Join(LogRootPath, "gitea.log")
 	bufferLength   int64
 	disableConsole bool
 }
@@ -111,7 +112,7 @@ func generateLogConfig(sec *ini.Section, name string, defaults defaultLogOptions
 		}
 
 	case "file":
-		if err := os.MkdirAll(path.Dir(logPath), os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(path.Dir(logPath), os.ModePerm); err != nil {
 			panic(err.Error())
 		}
 

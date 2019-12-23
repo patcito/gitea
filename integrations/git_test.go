@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/setting"
 	api "code.gitea.io/gitea/modules/structs"
@@ -26,8 +27,8 @@ import (
 )
 
 const (
-	littleSize = 1024              //1ko
-	bigSize    = 128 * 1024 * 1024 //128Mo
+	littleSize = 1024              // 1ko
+	bigSize    = 128 * 1024 * 1024 // 128Mo
 )
 
 func TestGit(t *testing.T) {
@@ -51,7 +52,7 @@ func testGit(t *testing.T, u *url.URL) {
 
 		dstPath, err := ioutil.TempDir("", httpContext.Reponame)
 		assert.NoError(t, err)
-		defer os.RemoveAll(dstPath)
+		defer fs.AppFs.RemoveAll(dstPath)
 
 		t.Run("CreateRepoInDifferentUser", doAPICreateRepository(forkedUserCtx, false))
 		t.Run("AddUserAsCollaborator", doAPIAddCollaborator(forkedUserCtx, httpContext.Username, models.AccessModeRead))
@@ -88,18 +89,18 @@ func testGit(t *testing.T, u *url.URL) {
 		t.Run("AddUserAsCollaborator", doAPIAddCollaborator(forkedUserCtx, sshContext.Username, models.AccessModeRead))
 		t.Run("ForkFromDifferentUser", doAPIForkRepository(sshContext, forkedUserCtx.Username))
 
-		//Setup key the user ssh key
+		// Setup key the user ssh key
 		withKeyFile(t, keyname, func(keyFile string) {
 			t.Run("CreateUserKey", doAPICreateUserKey(sshContext, "test-key", keyFile))
 
-			//Setup remote link
-			//TODO: get url from api
+			// Setup remote link
+			// TODO: get url from api
 			sshURL := createSSHUrl(sshContext.GitPath(), u)
 
-			//Setup clone folder
+			// Setup clone folder
 			dstPath, err := ioutil.TempDir("", sshContext.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstPath)
+			defer fs.AppFs.RemoveAll(dstPath)
 
 			t.Run("Clone", doGitClone(dstPath, sshURL))
 
@@ -124,7 +125,7 @@ func testGit(t *testing.T, u *url.URL) {
 func ensureAnonymousClone(t *testing.T, u *url.URL) {
 	dstLocalPath, err := ioutil.TempDir("", "repo1")
 	assert.NoError(t, err)
-	defer os.RemoveAll(dstLocalPath)
+	defer fs.AppFs.RemoveAll(dstLocalPath)
 	t.Run("CloneAnonymous", doGitClone(dstLocalPath, u))
 
 }
@@ -286,13 +287,13 @@ func lockFileTest(t *testing.T, filename, repoPath string) {
 func doCommitAndPush(t *testing.T, size int, repoPath, prefix string) string {
 	name, err := generateCommitWithNewData(size, repoPath, "user2@example.com", "User Two", prefix)
 	assert.NoError(t, err)
-	_, err = git.NewCommand("push", "origin", "master").RunInDir(repoPath) //Push
+	_, err = git.NewCommand("push", "origin", "master").RunInDir(repoPath) // Push
 	assert.NoError(t, err)
 	return name
 }
 
 func generateCommitWithNewData(size int, repoPath, email, fullName, prefix string) (string, error) {
-	//Generate random file
+	// Generate random file
 	data := make([]byte, size)
 	_, err := rand.Read(data)
 	if err != nil {
@@ -308,7 +309,7 @@ func generateCommitWithNewData(size int, repoPath, email, fullName, prefix strin
 		return "", err
 	}
 
-	//Commit
+	// Commit
 	// Now here we should explicitly allow lfs filters to run
 	globalArgs := allowLFSFilters()
 	err = git.AddChangesWithArgs(repoPath, globalArgs, false, filepath.Base(tmpFile.Name()))

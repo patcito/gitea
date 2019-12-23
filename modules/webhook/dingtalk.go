@@ -165,7 +165,7 @@ func getDingtalkIssuesPayload(p *api.IssuePayload) (*DingtalkPayload, error) {
 		MsgType: "actionCard",
 		ActionCard: dingtalk.ActionCard{
 			Text: title + "\r\n\r\n" + text,
-			//Markdown:    "# " + title + "\n" + text,
+			// Markdown:    "# " + title + "\n" + text,
 			Title:       title,
 			HideAvatar:  "0",
 			SingleTitle: "view issue",
@@ -260,7 +260,7 @@ func getDingtalkPullRequestPayload(p *api.PullRequestPayload) (*DingtalkPayload,
 		MsgType: "actionCard",
 		ActionCard: dingtalk.ActionCard{
 			Text: title + "\r\n\r\n" + text,
-			//Markdown:    "# " + title + "\n" + text,
+			// Markdown:    "# " + title + "\n" + text,
 			Title:       title,
 			HideAvatar:  "0",
 			SingleTitle: "view pull request",

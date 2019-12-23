@@ -138,7 +138,7 @@ func TestConnLoggerFailConnect(t *testing.T) {
 
 	date := time.Date(2019, time.January, 13, 22, 3, 30, 15, location)
 
-	//dateString := date.UTC().Format("2006/01/02 15:04:05")
+	// dateString := date.UTC().Format("2006/01/02 15:04:05")
 
 	event := Event{
 		level:    INFO,

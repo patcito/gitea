@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 // ObjectCache provides thread-safe cache opeations.
@@ -44,7 +46,7 @@ func (oc *ObjectCache) Get(id string) (interface{}, bool) {
 // isDir returns true if given path is a directory,
 // or returns false when it's a file or does not exist.
 func isDir(dir string) bool {
-	f, e := os.Stat(dir)
+	f, e := fs.AppFs.Stat(dir)
 	if e != nil {
 		return false
 	}
@@ -54,7 +56,7 @@ func isDir(dir string) bool {
 // isFile returns true if given path is a file,
 // or returns false when it's a directory or does not exist.
 func isFile(filePath string) bool {
-	f, e := os.Stat(filePath)
+	f, e := fs.AppFs.Stat(filePath)
 	if e != nil {
 		return false
 	}
@@ -64,7 +66,7 @@ func isFile(filePath string) bool {
 // isExist checks whether a file or directory exists.
 // It returns false when the file or directory does not exist.
 func isExist(path string) bool {
-	_, err := os.Stat(path)
+	_, err := fs.AppFs.Stat(path)
 	return err == nil || os.IsExist(err)
 }
 

@@ -13,6 +13,8 @@ import (
 	"strings"
 
 	"github.com/unknwon/com"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 // hookNames is a list of Git server hooks' name that are supported.
@@ -82,7 +84,7 @@ func (h *Hook) Name() string {
 func (h *Hook) Update() error {
 	if len(strings.TrimSpace(h.Content)) == 0 {
 		if isExist(h.path) {
-			err := os.Remove(h.path)
+			err := fs.AppFs.Remove(h.path)
 			if err != nil {
 				return err
 			}
@@ -91,7 +93,7 @@ func (h *Hook) Update() error {
 		return nil
 	}
 	d := filepath.Dir(h.path)
-	if err := os.MkdirAll(d, os.ModePerm); err != nil {
+	if err := fs.AppFs.MkdirAll(d, os.ModePerm); err != nil {
 		return err
 	}
 
@@ -129,9 +131,9 @@ func SetUpdateHook(repoPath, content string) (err error) {
 	log("Setting update hook: %s", repoPath)
 	hookPath := path.Join(repoPath, HookPathUpdate)
 	if com.IsExist(hookPath) {
-		err = os.Remove(hookPath)
+		err = fs.AppFs.Remove(hookPath)
 	} else {
-		err = os.MkdirAll(path.Dir(hookPath), os.ModePerm)
+		err = fs.AppFs.MkdirAll(path.Dir(hookPath), os.ModePerm)
 	}
 	if err != nil {
 		return err

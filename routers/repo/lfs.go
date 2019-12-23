@@ -11,7 +11,6 @@ import (
 	gotemplate "html/template"
 	"io"
 	"io/ioutil"
-	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -24,6 +23,7 @@ import (
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/charset"
 	"code.gitea.io/gitea/modules/context"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/git/pipeline"
 	"code.gitea.io/gitea/modules/lfs"
@@ -309,7 +309,7 @@ func LFSFileGet(ctx *context.Context) {
 
 		var output bytes.Buffer
 		lines := strings.Split(fileContent, "\n")
-		//Remove blank line at the end of file
+		// Remove blank line at the end of file
 		if len(lines) > 0 && lines[len(lines)-1] == "" {
 			lines = lines[:len(lines)-1]
 		}
@@ -356,7 +356,7 @@ func LFSDelete(ctx *context.Context) {
 	// Please note a similar condition happens in models/repo.go DeleteRepository
 	if count == 0 {
 		oidPath := filepath.Join(oid[0:2], oid[2:4], oid[4:])
-		err = os.Remove(filepath.Join(setting.LFS.ContentPath, oidPath))
+		err = fs.AppFs.Remove(filepath.Join(setting.LFS.ContentPath, oidPath))
 		if err != nil {
 			ctx.ServerError("LFSDelete", err)
 			return
@@ -717,7 +717,7 @@ func LFSAutoAssociate(ctx *context.Context) {
 			return
 		}
 		metas[i].Oid = oid[:idx]
-		//metas[i].RepositoryID = ctx.Repo.Repository.ID
+		// metas[i].RepositoryID = ctx.Repo.Repository.ID
 	}
 	if err := models.LFSAutoAssociate(metas, ctx.User, ctx.Repo.Repository.ID); err != nil {
 		ctx.ServerError("LFSAutoAssociate", err)

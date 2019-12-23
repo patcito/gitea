@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 	"code.gitea.io/gitea/routers/routes"
 
@@ -71,8 +72,8 @@ func TestSessionFileCreation(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "sessions")
 	assert.NoError(t, err)
 	defer func() {
-		if _, err := os.Stat(tmpDir); !os.IsNotExist(err) {
-			_ = os.RemoveAll(tmpDir)
+		if _, err := fs.AppFs.Stat(tmpDir); !os.IsNotExist(err) {
+			_ = fs.AppFs.RemoveAll(tmpDir)
 		}
 	}()
 	config.ProviderConfig = tmpDir

@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/modules/avatar"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/markup"
@@ -988,7 +989,7 @@ func createDelegateHooks(repoPath string) (err error) {
 		oldHookPath := filepath.Join(hookDir, hookName)
 		newHookPath := filepath.Join(hookDir, hookName+".d", "gitea")
 
-		if err := os.MkdirAll(filepath.Join(hookDir, hookName+".d"), os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(filepath.Join(hookDir, hookName+".d"), os.ModePerm); err != nil {
 			return fmt.Errorf("create hooks dir '%s': %v", filepath.Join(hookDir, hookName+".d"), err)
 		}
 
@@ -1206,7 +1207,11 @@ func initRepository(e Engine, repoPath string, u *User, repo *Repository, opts C
 			return fmt.Errorf("Failed to create temp dir for repository %s: %v", repo.repoPath(e), err)
 		}
 
-		defer os.RemoveAll(tmpDir)
+		defer func() {
+			if err := fs.AppFs.RemoveAll(tmpDir); err != nil {
+				log.Error("initRepository failed to remove temp dir: %v", err)
+			}
+		}()
 
 		if err = prepareRepoCommit(e, repo, tmpDir, repoPath, opts); err != nil {
 			return fmt.Errorf("prepareRepoCommit: %v", err)
@@ -1384,7 +1389,7 @@ func CreateRepository(doer, u *User, opts CreateRepoOptions) (_ *Repository, err
 	if !opts.IsMirror {
 		repoPath := RepoPath(u.Name, repo.Name)
 		if err = initRepository(sess, repoPath, u, repo, opts); err != nil {
-			if err2 := os.RemoveAll(repoPath); err2 != nil {
+			if err2 := fs.AppFs.RemoveAll(repoPath); err2 != nil {
 				log.Error("initRepository: %v", err)
 				return nil, fmt.Errorf(
 					"delete repo directory %s/%s failed(2): %v", u.Name, repo.Name, err2)
@@ -1550,18 +1555,18 @@ func TransferOwnership(doer *User, newOwnerName string, repo *Repository) error 
 	// Rename remote repository to new path and delete local copy.
 	dir := UserPath(newOwner.Name)
 
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+	if err := fs.AppFs.MkdirAll(dir, os.ModePerm); err != nil {
 		return fmt.Errorf("Failed to create dir %s: %v", dir, err)
 	}
 
-	if err = os.Rename(RepoPath(oldOwner.Name, repo.Name), RepoPath(newOwner.Name, repo.Name)); err != nil {
+	if err = fs.AppFs.Rename(RepoPath(oldOwner.Name, repo.Name), RepoPath(newOwner.Name, repo.Name)); err != nil {
 		return fmt.Errorf("rename repository directory: %v", err)
 	}
 
 	// Rename remote wiki repository to new path and delete local copy.
 	wikiPath := WikiPath(oldOwner.Name, repo.Name)
 	if com.IsExist(wikiPath) {
-		if err = os.Rename(wikiPath, WikiPath(newOwner.Name, repo.Name)); err != nil {
+		if err = fs.AppFs.Rename(wikiPath, WikiPath(newOwner.Name, repo.Name)); err != nil {
 			return fmt.Errorf("rename repository wiki: %v", err)
 		}
 	}
@@ -1598,13 +1603,13 @@ func ChangeRepositoryName(doer *User, repo *Repository, newRepoName string) (err
 	}
 
 	newRepoPath := RepoPath(repo.Owner.Name, newRepoName)
-	if err = os.Rename(repo.RepoPath(), newRepoPath); err != nil {
+	if err = fs.AppFs.Rename(repo.RepoPath(), newRepoPath); err != nil {
 		return fmt.Errorf("rename repository directory: %v", err)
 	}
 
 	wikiPath := repo.WikiPath()
 	if com.IsExist(wikiPath) {
-		if err = os.Rename(wikiPath, WikiPath(repo.Owner.Name, newRepoName)); err != nil {
+		if err = fs.AppFs.Rename(wikiPath, WikiPath(repo.Owner.Name, newRepoName)); err != nil {
 			return fmt.Errorf("rename repository wiki: %v", err)
 		}
 	}
@@ -1677,7 +1682,7 @@ func updateRepository(e Engine, repo *Repository, visibilityChanged bool) (err e
 		// Create/Remove git-daemon-export-ok for git-daemon...
 		daemonExportFile := path.Join(repo.repoPath(e), `git-daemon-export-ok`)
 		if repo.IsPrivate && com.IsExist(daemonExportFile) {
-			if err = os.Remove(daemonExportFile); err != nil {
+			if err = fs.AppFs.Remove(daemonExportFile); err != nil {
 				log.Error("Failed to remove %s: %v", daemonExportFile, err)
 			}
 		} else if !repo.IsPrivate && !com.IsExist(daemonExportFile) {
@@ -2123,7 +2128,7 @@ func DeleteRepositoryArchives() error {
 		Iterate(new(Repository),
 			func(idx int, bean interface{}) error {
 				repo := bean.(*Repository)
-				return os.RemoveAll(filepath.Join(repo.RepoPath(), "archives"))
+				return fs.AppFs.RemoveAll(filepath.Join(repo.RepoPath(), "archives"))
 			})
 }
 
@@ -2150,7 +2155,7 @@ func deleteOldRepositoryArchives(ctx context.Context, idx int, bean interface{})
 		}
 
 		path := filepath.Join(basePath, ty)
-		file, err := os.Open(path)
+		file, err := fs.AppFs.Open(path)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				log.Warn("Unable to open directory %s: %v", path, err)
@@ -2178,7 +2183,7 @@ func deleteOldRepositoryArchives(ctx context.Context, idx int, bean interface{})
 				}
 				toDelete := filepath.Join(path, info.Name())
 				// This is a best-effort purge, so we do not check error codes to confirm removal.
-				if err = os.Remove(toDelete); err != nil {
+				if err = fs.AppFs.Remove(toDelete); err != nil {
 					log.Trace("Unable to delete %s, but proceeding: %v", toDelete, err)
 				}
 			}
@@ -2583,7 +2588,7 @@ func ForkRepository(doer, owner *User, oldRepo *Repository, name, desc string) (
 		return nil, fmt.Errorf("createDelegateHooks: %v", err)
 	}
 
-	//Commit repo to get Fork ID
+	// Commit repo to get Fork ID
 	err = sess.Commit()
 	if err != nil {
 		return nil, err

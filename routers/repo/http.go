@@ -23,6 +23,7 @@ import (
 	"code.gitea.io/gitea/modules/auth/sso"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/context"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/process"
@@ -384,7 +385,7 @@ func (h *serviceHandler) setHeaderCacheForever() {
 func (h *serviceHandler) sendFile(contentType string) {
 	reqFile := path.Join(h.dir, h.file)
 
-	fi, err := os.Stat(reqFile)
+	fi, err := fs.AppFs.Stat(reqFile)
 	if os.IsNotExist(err) {
 		h.w.WriteHeader(http.StatusNotFound)
 		return
@@ -590,7 +591,7 @@ func getGitRepoPath(subdir string) (string, error) {
 	}
 
 	fpath := path.Join(setting.RepoRootPath, subdir)
-	if _, err := os.Stat(fpath); os.IsNotExist(err) {
+	if _, err := fs.AppFs.Stat(fpath); os.IsNotExist(err) {
 		return "", err
 	}
 

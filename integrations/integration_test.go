@@ -25,6 +25,7 @@ import (
 
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/base"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/graceful"
 	"code.gitea.io/gitea/modules/setting"
 	"code.gitea.io/gitea/routers"
@@ -91,11 +92,11 @@ func TestMain(m *testing.M) {
 
 	writerCloser.t = nil
 
-	if err = os.RemoveAll(setting.Indexer.IssuePath); err != nil {
-		fmt.Printf("os.RemoveAll: %v\n", err)
+	if err = fs.AppFs.RemoveAll(setting.Indexer.IssuePath); err != nil {
+		fmt.Printf("fs.AppFs.RemoveAll: %v\n", err)
 		os.Exit(1)
 	}
-	if err = os.RemoveAll(setting.Indexer.RepoPath); err != nil {
+	if err = fs.AppFs.RemoveAll(setting.Indexer.RepoPath); err != nil {
 		fmt.Printf("Unable to remove repo indexer: %v\n", err)
 		os.Exit(1)
 	}
@@ -114,7 +115,7 @@ func initIntegrationTest() {
 		giteaBinary += ".exe"
 	}
 	setting.AppPath = path.Join(giteaRoot, giteaBinary)
-	if _, err := os.Stat(setting.AppPath); err != nil {
+	if _, err := fs.AppFs.Stat(setting.AppPath); err != nil {
 		fmt.Printf("Could not find gitea binary at %s\n", setting.AppPath)
 		os.Exit(1)
 	}
@@ -131,7 +132,7 @@ func initIntegrationTest() {
 
 	setting.SetCustomPathAndConf("", "", "")
 	setting.NewContext()
-	os.RemoveAll(models.LocalCopyPath())
+	fs.AppFs.RemoveAll(models.LocalCopyPath())
 	setting.CheckLFSVersion()
 	setting.InitDBConfig()
 
@@ -188,7 +189,7 @@ func prepareTestEnv(t testing.TB, skip ...int) func() {
 	}
 	deferFn := PrintCurrentTest(t, ourSkip)
 	assert.NoError(t, models.LoadFixtures())
-	assert.NoError(t, os.RemoveAll(setting.RepoRootPath))
+	assert.NoError(t, fs.AppFs.RemoveAll(setting.RepoRootPath))
 
 	assert.NoError(t, com.CopyDir(path.Join(filepath.Dir(setting.AppPath), "integrations/gitea-repositories-meta"),
 		setting.RepoRootPath))

@@ -252,7 +252,7 @@ func DeleteOAuth2Application(id, userid int64) error {
 	return sess.Commit()
 }
 
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 // OAuth2AuthorizationCode is a code to obtain an access token in combination with the client secret once. It has a limited lifetime.
 type OAuth2AuthorizationCode struct {
@@ -338,7 +338,7 @@ func getOAuth2AuthorizationByCode(e Engine, code string) (auth *OAuth2Authorizat
 	return auth, nil
 }
 
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 
 // OAuth2Grant represents the permission of an user for a specifc application to access resources
 type OAuth2Grant struct {
@@ -455,7 +455,7 @@ func revokeOAuth2Grant(e Engine, grantID, userID int64) error {
 	return err
 }
 
-//////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////
 
 // OAuth2TokenType represents the type of token for an oauth application
 type OAuth2TokenType int

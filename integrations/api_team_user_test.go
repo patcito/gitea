@@ -9,10 +9,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/convert"
 	api "code.gitea.io/gitea/modules/structs"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAPITeamUser(t *testing.T) {

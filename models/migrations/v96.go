@@ -5,9 +5,8 @@
 package migrations
 
 import (
-	"os"
-
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"xorm.io/xorm"
@@ -32,7 +31,7 @@ func deleteOrphanedAttachments(x *xorm.Engine) error {
 			func(idx int, bean interface{}) error {
 				attachment := bean.(*Attachment)
 
-				if err := os.RemoveAll(models.AttachmentLocalPath(attachment.UUID)); err != nil {
+				if err := fs.AppFs.RemoveAll(models.AttachmentLocalPath(attachment.UUID)); err != nil {
 					return err
 				}
 

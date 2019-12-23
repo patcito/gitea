@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 var (
@@ -121,7 +123,7 @@ func DBConnStr() (string, error) {
 		if !EnableSQLite3 {
 			return "", errors.New("this binary version does not build support for SQLite3")
 		}
-		if err := os.MkdirAll(path.Dir(Database.Path), os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(path.Dir(Database.Path), os.ModePerm); err != nil {
 			return "", fmt.Errorf("Failed to create directories: %v", err)
 		}
 		connStr = fmt.Sprintf("file:%s?cache=shared&mode=rwc&_busy_timeout=%d", Database.Path, Database.Timeout)

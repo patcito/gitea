@@ -7,9 +7,10 @@ package webhook
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"code.gitea.io/gitea/models"
 	api "code.gitea.io/gitea/modules/structs"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestWebhook_GetSlackHook(t *testing.T) {

@@ -7,10 +7,10 @@ package pull
 import (
 	"context"
 	"fmt"
-	"os"
 	"path"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/graceful"
 	"code.gitea.io/gitea/modules/log"
@@ -240,7 +240,7 @@ func PushToBaseRepo(pr *models.PullRequest) (err error) {
 	// Remove head in case there is a conflict.
 	file := path.Join(pr.BaseRepo.RepoPath(), headFile)
 
-	_ = os.Remove(file)
+	_ = fs.AppFs.Remove(file)
 
 	if err = git.Push(headRepoPath, git.PushOptions{
 		Remote: tmpRemoteName,

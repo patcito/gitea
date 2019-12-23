@@ -23,9 +23,9 @@ func CheckInternalToken(ctx *macaron.Context) {
 	}
 }
 
-//GetRepositoryByOwnerAndName chainload to models.GetRepositoryByOwnerAndName
+// GetRepositoryByOwnerAndName chainload to models.GetRepositoryByOwnerAndName
 func GetRepositoryByOwnerAndName(ctx *macaron.Context) {
-	//TODO use repo.Get(ctx *context.APIContext) ?
+	// TODO use repo.Get(ctx *context.APIContext) ?
 	ownerName := ctx.Params(":owner")
 	repoName := ctx.Params(":repo")
 	repo, err := models.GetRepositoryByOwnerAndName(ownerName, repoName)
@@ -38,7 +38,7 @@ func GetRepositoryByOwnerAndName(ctx *macaron.Context) {
 	ctx.JSON(200, repo)
 }
 
-//CheckUnitUser chainload to models.CheckUnitUser
+// CheckUnitUser chainload to models.CheckUnitUser
 func CheckUnitUser(ctx *macaron.Context) {
 	repoID := ctx.ParamsInt64(":repoid")
 	userID := ctx.ParamsInt64(":userid")

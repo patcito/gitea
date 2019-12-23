@@ -77,7 +77,7 @@ func CreateOrg(ctx *context.APIContext, form api.CreateOrgOption) {
 	ctx.JSON(http.StatusCreated, convert.ToOrganization(org))
 }
 
-//GetAllOrgs API for getting information of all the organizations
+// GetAllOrgs API for getting information of all the organizations
 func GetAllOrgs(ctx *context.APIContext) {
 	// swagger:operation GET /admin/orgs admin adminGetAllOrgs
 	// ---

@@ -72,7 +72,7 @@ const (
 	CommentTypeRemovedDeadline
 	// Dependency added
 	CommentTypeAddDependency
-	//Dependency removed
+	// Dependency removed
 	CommentTypeRemoveDependency
 	// Comment a line of code
 	CommentTypeCode
@@ -869,7 +869,7 @@ func fetchCodeCommentsByReview(e Engine, issue *Issue, currentUser *User, review
 	if review == nil {
 		review = &Review{ID: 0}
 	}
-	//Find comments
+	// Find comments
 	opts := FindCommentsOptions{
 		Type:     CommentTypeCode,
 		IssueID:  issue.ID,

@@ -46,21 +46,21 @@ type APIInvalidTopicsError struct {
 	Message string   `json:"message"`
 }
 
-//APIEmpty is an empty response
+// APIEmpty is an empty response
 // swagger:response empty
 type APIEmpty struct{}
 
-//APIForbiddenError is a forbidden error response
+// APIForbiddenError is a forbidden error response
 // swagger:response forbidden
 type APIForbiddenError struct {
 	APIError
 }
 
-//APINotFound is a not found empty response
+// APINotFound is a not found empty response
 // swagger:response notFound
 type APINotFound struct{}
 
-//APIRedirect is a redirect response
+// APIRedirect is a redirect response
 // swagger:response redirect
 type APIRedirect struct{}
 

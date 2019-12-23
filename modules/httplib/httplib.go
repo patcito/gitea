@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 var defaultSetting = Settings{false, "GiteaServer", 60 * time.Second, 60 * time.Second, nil, nil, nil, false}
@@ -278,11 +280,11 @@ func (r *Request) getResponse() (*http.Response, error) {
 					if err != nil {
 						log.Fatal(err)
 					}
-					fh, err := os.Open(filename)
+					fh, err := fs.AppFs.Open(filename)
 					if err != nil {
 						log.Fatal(err)
 					}
-					//iocopy
+					// iocopy
 					_, err = io.Copy(fileWriter, fh)
 					fh.Close()
 					if err != nil {

@@ -1,12 +1,13 @@
 package git
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 const testReposDir = "tests/repos/"
@@ -14,7 +15,7 @@ const benchmarkReposDir = "benchmark/repos/"
 
 func cloneRepo(url, dir, name string) (string, error) {
 	repoDir := filepath.Join(dir, name)
-	if _, err := os.Stat(repoDir); err == nil {
+	if _, err := fs.AppFs.Stat(repoDir); err == nil {
 		return repoDir, nil
 	}
 	return repoDir, Clone(url, repoDir, CloneRepoOptions{
@@ -83,7 +84,7 @@ func TestEntries_GetCommitsInfo(t *testing.T) {
 
 	clonedPath, err := cloneRepo(bareRepo1Path, testReposDir, "repo1_TestEntries_GetCommitsInfo")
 	assert.NoError(t, err)
-	defer os.RemoveAll(clonedPath)
+	defer fs.AppFs.RemoveAll(clonedPath)
 	clonedRepo1, err := OpenRepository(clonedPath)
 	assert.NoError(t, err)
 	defer clonedRepo1.Close()

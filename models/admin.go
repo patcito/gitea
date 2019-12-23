@@ -6,19 +6,19 @@ package models
 
 import (
 	"fmt"
-	"os"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/timeutil"
 
 	"github.com/unknwon/com"
 )
 
-//NoticeType describes the notice type
+// NoticeType describes the notice type
 type NoticeType int
 
 const (
-	//NoticeRepository type
+	// NoticeRepository type
 	NoticeRepository NoticeType = iota + 1
 )
 
@@ -61,7 +61,7 @@ func RemoveAllWithNotice(title, path string) {
 }
 
 func removeAllWithNotice(e Engine, title, path string) {
-	if err := os.RemoveAll(path); err != nil {
+	if err := fs.AppFs.RemoveAll(path); err != nil {
 		desc := fmt.Sprintf("%s [%s]: %v", title, path, err)
 		log.Warn(title+" [%s]: %v", path, err)
 		if err = createNotice(e, NoticeRepository, desc); err != nil {

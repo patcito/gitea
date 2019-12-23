@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/generate"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
@@ -684,12 +685,12 @@ func attachmentRefactor(x *xorm.Engine) error {
 		log.Info("Failed to rename some attachments, old and new paths are saved into: %s", dumpPath)
 	}()
 	for _, attach := range attachments {
-		if err = os.MkdirAll(path.Dir(attach.NewPath), os.ModePerm); err != nil {
+		if err = fs.AppFs.MkdirAll(path.Dir(attach.NewPath), os.ModePerm); err != nil {
 			isSucceed = false
 			return err
 		}
 
-		if err = os.Rename(attach.Path, attach.NewPath); err != nil {
+		if err = fs.AppFs.Rename(attach.Path, attach.NewPath); err != nil {
 			isSucceed = false
 			return err
 		}

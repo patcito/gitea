@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 )
@@ -173,7 +174,7 @@ func GetListenerUnix(network string, address *net.UnixAddr) (*net.UnixListener, 
 	}
 
 	// make a fresh listener
-	if err := os.Remove(address.Name); err != nil && !os.IsNotExist(err) {
+	if err := fs.AppFs.Remove(address.Name); err != nil && !os.IsNotExist(err) {
 		return nil, fmt.Errorf("Failed to remove unix socket %s: %v", address.Name, err)
 	}
 
@@ -183,7 +184,7 @@ func GetListenerUnix(network string, address *net.UnixAddr) (*net.UnixListener, 
 	}
 
 	fileMode := os.FileMode(setting.UnixSocketPermission)
-	if err = os.Chmod(address.Name, fileMode); err != nil {
+	if err = fs.AppFs.Chmod(address.Name, fileMode); err != nil {
 		return nil, fmt.Errorf("Failed to set permission of unix socket to %s: %v", fileMode.String(), err)
 	}
 

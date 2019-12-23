@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 )
@@ -25,7 +26,7 @@ func LocalCopyPath() string {
 
 // CreateTemporaryPath creates a temporary path
 func CreateTemporaryPath(prefix string) (string, error) {
-	if err := os.MkdirAll(LocalCopyPath(), os.ModePerm); err != nil {
+	if err := fs.AppFs.MkdirAll(LocalCopyPath(), os.ModePerm); err != nil {
 		log.Error("Unable to create localcopypath directory: %s (%v)", LocalCopyPath(), err)
 		return "", fmt.Errorf("Failed to create localcopypath directory %s: %v", LocalCopyPath(), err)
 	}
@@ -40,8 +41,8 @@ func CreateTemporaryPath(prefix string) (string, error) {
 
 // RemoveTemporaryPath removes the temporary path
 func RemoveTemporaryPath(basePath string) error {
-	if _, err := os.Stat(basePath); !os.IsNotExist(err) {
-		return os.RemoveAll(basePath)
+	if _, err := fs.AppFs.Stat(basePath); !os.IsNotExist(err) {
+		return fs.AppFs.RemoveAll(basePath)
 	}
 	return nil
 }

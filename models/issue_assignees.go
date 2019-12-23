@@ -200,7 +200,7 @@ func MakeIDsFromAPIAssigneesToAdd(oneAssignee string, multipleAssignees []string
 		requestAssignees = append(requestAssignees, oneAssignee)
 	}
 
-	//Prevent empty assignees
+	// Prevent empty assignees
 	if len(multipleAssignees) > 0 && multipleAssignees[0] != "" {
 		requestAssignees = append(requestAssignees, multipleAssignees...)
 	}

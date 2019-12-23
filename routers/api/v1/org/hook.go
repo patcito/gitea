@@ -100,7 +100,7 @@ func CreateHook(ctx *context.APIContext, form api.CreateHookOption) {
 	//   "201":
 	//     "$ref": "#/responses/Hook"
 
-	//TODO in body params
+	// TODO in body params
 	if !utils.CheckCreateHookOption(ctx, &form) {
 		return
 	}
@@ -136,7 +136,7 @@ func EditHook(ctx *context.APIContext, form api.EditHookOption) {
 	//   "200":
 	//     "$ref": "#/responses/Hook"
 
-	//TODO in body params
+	// TODO in body params
 	hookID := ctx.ParamsInt64(":id")
 	utils.EditOrgHook(ctx, &form, hookID)
 }

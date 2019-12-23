@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/graceful"
 	"code.gitea.io/gitea/modules/log"
@@ -68,7 +69,11 @@ func getMergeCommit(pr *models.PullRequest) (*git.Commit, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create temp dir for repository %s: %v", pr.BaseRepo.RepoPath(), err)
 	}
-	defer os.RemoveAll(indexTmpPath)
+	defer func() {
+		if err := fs.AppFs.RemoveAll(indexTmpPath); err != nil {
+			log.Error("getMergeCommit failed to remove temp file: %v", err)
+		}
+	}()
 
 	headFile := pr.GetGitRefName()
 

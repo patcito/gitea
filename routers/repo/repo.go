@@ -14,6 +14,7 @@ import (
 	"code.gitea.io/gitea/modules/auth"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/context"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/migrations"
@@ -460,8 +461,8 @@ func Download(ctx *context.Context) {
 	refName = strings.TrimSuffix(uri, ext)
 
 	if !com.IsDir(archivePath) {
-		if err := os.MkdirAll(archivePath, os.ModePerm); err != nil {
-			ctx.ServerError("Download -> os.MkdirAll(archivePath)", err)
+		if err := fs.AppFs.MkdirAll(archivePath, os.ModePerm); err != nil {
+			ctx.ServerError("Download -> fs.AppFs.MkdirAll(archivePath)", err)
 			return
 		}
 	}
