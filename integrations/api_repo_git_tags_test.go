@@ -24,21 +24,24 @@ func TestAPIGitTags(t *testing.T) {
 	session := loginUser(t, user.Name)
 	token := getTokenForLoggedInUser(t, session)
 
-	// Set up git config for the tagger
-	git.NewCommand("config", "user.name", user.Name).RunInDir(repo.RepoPath())
-	git.NewCommand("config", "user.email", user.Email).RunInDir(repo.RepoPath())
-
-	gitRepo, _ := git.OpenRepository(repo.RepoPath())
+	gitRepo, err := git.OpenRepository(repo.RepoPath())
+	assert.NoError(t, err)
 	defer gitRepo.Close()
 
-	commit, _ := gitRepo.GetBranchCommit("master")
+	// Set up git config for the tagger
+	git.NewCommand("config", "user.name", user.Name).RunInDir(gitRepo.Path)
+	git.NewCommand("config", "user.email", user.Email).RunInDir(gitRepo.Path)
+
+	commit, err := gitRepo.GetBranchCommit("master")
+	assert.NoError(t, err)
 	lTagName := "lightweightTag"
-	gitRepo.CreateTag(lTagName, commit.ID.String())
+	assert.NoError(t, gitRepo.CreateTag(lTagName, commit.ID.String()))
 
 	aTagName := "annotatedTag"
 	aTagMessage := "my annotated message"
-	gitRepo.CreateAnnotatedTag(aTagName, aTagMessage, commit.ID.String())
-	aTag, _ := gitRepo.GetTag(aTagName)
+	assert.NoError(t, gitRepo.CreateAnnotatedTag(aTagName, aTagMessage, commit.ID.String()))
+	aTag, err := gitRepo.GetTag(aTagName)
+	assert.NoError(t, err)
 
 	// SHOULD work for annotated tags
 	req := NewRequestf(t, "GET", "/api/v1/repos/%s/%s/git/tags/%s?token=%s", user.Name, repo.Name, aTag.ID.String(), token)
