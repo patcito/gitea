@@ -5,16 +5,17 @@
 package issues
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 func TestBleveIndexAndSearch(t *testing.T) {
 	dir := "./bleve.index"
 	indexer := NewBleveIndexer(dir)
-	defer os.RemoveAll(dir)
+	defer fs.AppFs.RemoveAll(dir)
 
 	_, err := indexer.Init()
 	assert.NoError(t, err)

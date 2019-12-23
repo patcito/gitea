@@ -145,7 +145,7 @@ type SearchRepoOptions struct {
 	IncludeDescription bool
 }
 
-//SearchOrderBy is used to sort the result
+// SearchOrderBy is used to sort the result
 type SearchOrderBy string
 
 func (s SearchOrderBy) String() string {

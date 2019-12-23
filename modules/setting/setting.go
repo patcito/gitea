@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/generate"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
@@ -461,7 +462,7 @@ func IsRunUserMatchCurrentUser(runUser string) (string, bool) {
 
 func createPIDFile(pidPath string) {
 	currentPid := os.Getpid()
-	if err := os.MkdirAll(filepath.Dir(pidPath), os.ModePerm); err != nil {
+	if err := fs.AppFs.MkdirAll(filepath.Dir(pidPath), os.ModePerm); err != nil {
 		log.Fatal("Failed to create PID folder: %v", err)
 	}
 
@@ -478,8 +479,8 @@ func createPIDFile(pidPath string) {
 // CheckLFSVersion will check lfs version, if not satisfied, then disable it.
 func CheckLFSVersion() {
 	if LFS.StartServer {
-		//Disable LFS client hooks if installed for the current OS user
-		//Needs at least git v2.1.2
+		// Disable LFS client hooks if installed for the current OS user
+		// Needs at least git v2.1.2
 
 		binVersion, err := git.BinVersion()
 		if err != nil {
@@ -696,9 +697,9 @@ func NewContext() {
 	}
 
 	if !SSH.Disabled && !SSH.StartBuiltinServer {
-		if err := os.MkdirAll(SSH.RootPath, 0700); err != nil {
+		if err := fs.AppFs.MkdirAll(SSH.RootPath, 0700); err != nil {
 			log.Fatal("Failed to create '%s': %v", SSH.RootPath, err)
-		} else if err = os.MkdirAll(SSH.KeyTestPath, 0644); err != nil {
+		} else if err = fs.AppFs.MkdirAll(SSH.KeyTestPath, 0644); err != nil {
 			log.Fatal("Failed to create '%s': %v", SSH.KeyTestPath, err)
 		}
 	}
@@ -746,7 +747,7 @@ func NewContext() {
 
 			cfg.Section("server").Key("LFS_JWT_SECRET").SetValue(LFS.JWTSecretBase64)
 
-			if err := os.MkdirAll(filepath.Dir(CustomConf), os.ModePerm); err != nil {
+			if err := fs.AppFs.MkdirAll(filepath.Dir(CustomConf), os.ModePerm); err != nil {
 				log.Fatal("Failed to create '%s': %v", CustomConf, err)
 			}
 			if err := cfg.SaveTo(CustomConf); err != nil {
@@ -780,7 +781,7 @@ func NewContext() {
 			}
 			cfg.Section("oauth2").Key("JWT_SECRET").SetValue(OAuth2.JWTSecretBase64)
 
-			if err := os.MkdirAll(filepath.Dir(CustomConf), os.ModePerm); err != nil {
+			if err := fs.AppFs.MkdirAll(filepath.Dir(CustomConf), os.ModePerm); err != nil {
 				log.Fatal("failed to create '%s': %v", CustomConf, err)
 				return
 			}
@@ -1023,7 +1024,7 @@ func loadInternalToken(sec *ini.Section) string {
 	}
 	switch tempURI.Scheme {
 	case "file":
-		fp, err := os.OpenFile(tempURI.RequestURI(), os.O_RDWR, 0600)
+		fp, err := fs.AppFs.OpenFile(tempURI.RequestURI(), os.O_RDWR, 0600)
 		if err != nil {
 			log.Fatal("Failed to open InternalTokenURI (%s): %v", uri, err)
 		}
@@ -1072,7 +1073,7 @@ func loadOrGenerateInternalToken(sec *ini.Section) string {
 
 		cfgSave.Section("security").Key("INTERNAL_TOKEN").SetValue(token)
 
-		if err := os.MkdirAll(filepath.Dir(CustomConf), os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(filepath.Dir(CustomConf), os.ModePerm); err != nil {
 			log.Fatal("Failed to create '%s': %v", CustomConf, err)
 		}
 		if err := cfgSave.SaveTo(CustomConf); err != nil {

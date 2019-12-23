@@ -25,7 +25,7 @@ func TestTimedDiscoveryCache(t *testing.T) {
 	dc := newTimedDiscoveryCache(1 * time.Second)
 
 	// Put some initial values
-	dc.Put("foo", &testDiscoveredInfo{}) //openid.opEndpoint: "a", openid.opLocalID: "b", openid.claimedID: "c"})
+	dc.Put("foo", &testDiscoveredInfo{}) // openid.opEndpoint: "a", openid.opLocalID: "b", openid.claimedID: "c"})
 
 	// Make sure we can retrieve them
 	if di := dc.Get("foo"); di == nil {

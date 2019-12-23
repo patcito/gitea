@@ -13,8 +13,9 @@ import (
 	"net/http"
 	"testing"
 
-	"code.gitea.io/gitea/modules/test"
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/modules/test"
 )
 
 func generateImg() bytes.Buffer {
@@ -28,7 +29,7 @@ func generateImg() bytes.Buffer {
 func createAttachment(t *testing.T, session *TestSession, repoURL, filename string, buff bytes.Buffer, expectedStatus int) string {
 	body := &bytes.Buffer{}
 
-	//Setup multi-part
+	// Setup multi-part
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile("file", filename)
 	assert.NoError(t, err)
@@ -82,7 +83,7 @@ func TestCreateIssueAttachement(t *testing.T) {
 	resp = session.MakeRequest(t, req, http.StatusFound)
 	test.RedirectURL(resp) // check that redirect URL exists
 
-	//Validate that attachement is available
+	// Validate that attachement is available
 	req = NewRequest(t, "GET", "/attachments/"+uuid)
 	session.MakeRequest(t, req, http.StatusOK)
 }

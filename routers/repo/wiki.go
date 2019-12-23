@@ -188,7 +188,7 @@ func renderViewPage(ctx *context.Context) (*git.Repository, *git.TreeEntry) {
 	ctx.Data["title"] = pageName
 	ctx.Data["RequireHighlightJS"] = true
 
-	//lookup filename in wiki - get filecontent, gitTree entry , real filename
+	// lookup filename in wiki - get filecontent, gitTree entry , real filename
 	data, entry, pageFilename, noEntry := wikiContentsByName(ctx, commit, pageName)
 	if noEntry {
 		ctx.Redirect(ctx.Repo.RepoLink + "/wiki/_pages")
@@ -253,7 +253,7 @@ func renderRevisionPage(ctx *context.Context) (*git.Repository, *git.TreeEntry) 
 	ctx.Data["title"] = pageName
 	ctx.Data["RequireHighlightJS"] = true
 
-	//lookup filename in wiki - get filecontent, gitTree entry , real filename
+	// lookup filename in wiki - get filecontent, gitTree entry , real filename
 	data, entry, pageFilename, noEntry := wikiContentsByName(ctx, commit, pageName)
 	if noEntry {
 		ctx.Redirect(ctx.Repo.RepoLink + "/wiki/_pages")
@@ -330,7 +330,7 @@ func renderEditPage(ctx *context.Context) {
 	ctx.Data["title"] = pageName
 	ctx.Data["RequireHighlightJS"] = true
 
-	//lookup filename in wiki - get filecontent, gitTree entry , real filename
+	// lookup filename in wiki - get filecontent, gitTree entry , real filename
 	data, entry, _, noEntry := wikiContentsByName(ctx, commit, pageName)
 	if noEntry {
 		ctx.Redirect(ctx.Repo.RepoLink + "/wiki/_pages")

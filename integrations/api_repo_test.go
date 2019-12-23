@@ -9,10 +9,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"testing"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	api "code.gitea.io/gitea/modules/structs"
 
 	"github.com/stretchr/testify/assert"
@@ -316,7 +316,7 @@ func testAPIRepoMigrateConflict(t *testing.T, u *url.URL) {
 		httpContext.Reponame = "repo-tmp-17"
 		dstPath, err := ioutil.TempDir("", httpContext.Reponame)
 		assert.NoError(t, err)
-		defer os.RemoveAll(dstPath)
+		defer fs.AppFs.RemoveAll(dstPath)
 		t.Run("CreateRepo", doAPICreateRepository(httpContext, false))
 
 		user, err := models.GetUserByName(httpContext.Username)
@@ -379,7 +379,7 @@ func testAPIRepoCreateConflict(t *testing.T, u *url.URL) {
 		httpContext.Reponame = "repo-tmp-17"
 		dstPath, err := ioutil.TempDir("", httpContext.Reponame)
 		assert.NoError(t, err)
-		defer os.RemoveAll(dstPath)
+		defer fs.AppFs.RemoveAll(dstPath)
 		t.Run("CreateRepo", doAPICreateRepository(httpContext, false))
 
 		req := NewRequestWithJSON(t, "POST", "/api/v1/user/repos?token="+httpContext.Token,

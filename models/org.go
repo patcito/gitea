@@ -8,9 +8,9 @@ package models
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 	"code.gitea.io/gitea/modules/storage"
@@ -303,7 +303,7 @@ func deleteOrg(e *xorm.Session, u *User) error {
 	//	so just keep error logs of those operations.
 	path := UserPath(u.Name)
 
-	if err := os.RemoveAll(path); err != nil {
+	if err := fs.AppFs.RemoveAll(path); err != nil {
 		return fmt.Errorf("Failed to RemoveAll %s: %v", path, err)
 	}
 

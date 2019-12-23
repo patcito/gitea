@@ -131,14 +131,14 @@ func testLinksAsUser(userName string, t *testing.T) {
 		"/settings/branches",
 		"/settings/hooks",
 		// FIXME: below links should return 200 but 404 ??
-		//"/settings/hooks/git",
-		//"/settings/hooks/git/pre-receive",
-		//"/settings/hooks/git/update",
-		//"/settings/hooks/git/post-receive",
+		// "/settings/hooks/git",
+		// "/settings/hooks/git/pre-receive",
+		// "/settings/hooks/git/update",
+		// "/settings/hooks/git/post-receive",
 		"/settings/keys",
 		"/releases",
 		"/releases/new",
-		//"/wiki/_pages",
+		// "/wiki/_pages",
 		"/wiki/_new",
 	}
 

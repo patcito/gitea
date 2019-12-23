@@ -225,7 +225,7 @@ func renderFile(ctx *context.Context, entry *git.TreeEntry, treeLink, rawLink st
 	isLFSFile := false
 	ctx.Data["IsTextFile"] = isTextFile
 
-	//Check for LFS meta file
+	// Check for LFS meta file
 	if isTextFile && setting.LFS.StartServer {
 		meta := lfs.IsPointerFile(&buf)
 		if meta != nil {
@@ -324,7 +324,7 @@ func renderFile(ctx *context.Context, entry *git.TreeEntry, treeLink, rawLink st
 			}
 			ctx.Data["NumLinesSet"] = true
 
-			//Remove blank line at the end of file
+			// Remove blank line at the end of file
 			if len(lines) > 0 && lines[len(lines)-1] == "" {
 				lines = lines[:len(lines)-1]
 			}

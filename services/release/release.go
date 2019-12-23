@@ -6,10 +6,10 @@ package release
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/notification"
@@ -160,7 +160,7 @@ func DeleteReleaseByID(id int64, doer *models.User, delTag bool) error {
 
 	for i := range rel.Attachments {
 		attachment := rel.Attachments[i]
-		if err := os.RemoveAll(attachment.LocalPath()); err != nil {
+		if err := fs.AppFs.RemoveAll(attachment.LocalPath()); err != nil {
 			log.Error("Delete attachment %s of release %s failed: %v", attachment.UUID, rel.ID, err)
 		}
 	}

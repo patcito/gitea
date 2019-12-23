@@ -12,13 +12,15 @@ import (
 	"os"
 	"testing"
 
-	"code.gitea.io/gitea/models"
-	"code.gitea.io/gitea/modules/process"
-	"code.gitea.io/gitea/modules/setting"
-	api "code.gitea.io/gitea/modules/structs"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/openpgp"
 	"golang.org/x/crypto/openpgp/armor"
+
+	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
+	"code.gitea.io/gitea/modules/process"
+	"code.gitea.io/gitea/modules/setting"
+	api "code.gitea.io/gitea/modules/structs"
 )
 
 func TestGPGGit(t *testing.T) {
@@ -28,9 +30,9 @@ func TestGPGGit(t *testing.T) {
 	// OK Set a new GPG home
 	tmpDir, err := ioutil.TempDir("", "temp-gpg")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer fs.AppFs.RemoveAll(tmpDir)
 
-	err = os.Chmod(tmpDir, 0700)
+	err = fs.AppFs.Chmod(tmpDir, 0700)
 	assert.NoError(t, err)
 
 	oldGNUPGHome := os.Getenv("GNUPGHOME")
@@ -347,7 +349,7 @@ func importTestingKey(tmpDir, name, email string) (*openpgp.Entity, error) {
 	if _, _, err := process.GetManager().Exec("gpg --import integrations/private-testing.key", "gpg", "--import", "integrations/private-testing.key"); err != nil {
 		return nil, err
 	}
-	keyringFile, err := os.Open("integrations/private-testing.key")
+	keyringFile, err := fs.AppFs.Open("integrations/private-testing.key")
 	if err != nil {
 		return nil, err
 	}

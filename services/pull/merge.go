@@ -18,6 +18,7 @@ import (
 
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/cache"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/notification"
@@ -93,7 +94,7 @@ func Merge(pr *models.PullRequest, doer *models.User, baseGitRepo *git.Repositor
 	}
 
 	infoPath := filepath.Join(tmpBasePath, ".git", "info")
-	if err := os.MkdirAll(infoPath, 0700); err != nil {
+	if err := fs.AppFs.MkdirAll(infoPath, 0700); err != nil {
 		log.Error("Unable to create .git/info in %s: %v", tmpBasePath, err)
 		return fmt.Errorf("Unable to create .git/info in tmpBasePath: %v", err)
 	}
@@ -210,7 +211,7 @@ func Merge(pr *models.PullRequest, doer *models.User, baseGitRepo *git.Repositor
 		// Rebase before merging
 		if err := git.NewCommand("rebase", baseBranch).RunInDirPipeline(tmpBasePath, &outbuf, &errbuf); err != nil {
 			// Rebase will leave a REBASE_HEAD file in .git if there is a conflict
-			if _, statErr := os.Stat(filepath.Join(tmpBasePath, ".git", "REBASE_HEAD")); statErr == nil {
+			if _, statErr := fs.AppFs.Stat(filepath.Join(tmpBasePath, ".git", "REBASE_HEAD")); statErr == nil {
 				// The original commit SHA1 that is failing will be in .git/rebase-apply/original-commit
 				commitShaBytes, readErr := ioutil.ReadFile(filepath.Join(tmpBasePath, ".git", "rebase-apply", "original-commit"))
 				if readErr != nil {
@@ -402,7 +403,7 @@ func runMergeCommand(pr *models.PullRequest, mergeStyle models.MergeStyle, cmd *
 	var outbuf, errbuf strings.Builder
 	if err := cmd.RunInDirPipeline(tmpBasePath, &outbuf, &errbuf); err != nil {
 		// Merge will leave a MERGE_HEAD file in the .git folder if there is a conflict
-		if _, statErr := os.Stat(filepath.Join(tmpBasePath, ".git", "MERGE_HEAD")); statErr == nil {
+		if _, statErr := fs.AppFs.Stat(filepath.Join(tmpBasePath, ".git", "MERGE_HEAD")); statErr == nil {
 			// We have a merge conflict error
 			log.Debug("MergeConflict [%s:%s -> %s:%s]: %v\n%s\n%s", pr.HeadRepo.FullName(), pr.HeadBranch, pr.BaseRepo.FullName(), pr.BaseBranch, err, outbuf.String(), errbuf.String())
 			return models.ErrMergeConflicts{

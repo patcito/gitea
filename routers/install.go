@@ -15,6 +15,7 @@ import (
 	"code.gitea.io/gitea/modules/auth"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/context"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/generate"
 	"code.gitea.io/gitea/modules/graceful"
 	"code.gitea.io/gitea/modules/log"
@@ -173,7 +174,7 @@ func InstallPost(ctx *context.Context, form auth.InstallForm) {
 
 	// Test repository root path.
 	form.RepoRootPath = strings.Replace(form.RepoRootPath, "\\", "/", -1)
-	if err = os.MkdirAll(form.RepoRootPath, os.ModePerm); err != nil {
+	if err = fs.AppFs.MkdirAll(form.RepoRootPath, os.ModePerm); err != nil {
 		ctx.Data["Err_RepoRootPath"] = true
 		ctx.RenderWithErr(ctx.Tr("install.invalid_repo_path", err), tplInstall, &form)
 		return
@@ -182,7 +183,7 @@ func InstallPost(ctx *context.Context, form auth.InstallForm) {
 	// Test LFS root path if not empty, empty meaning disable LFS
 	if form.LFSRootPath != "" {
 		form.LFSRootPath = strings.Replace(form.LFSRootPath, "\\", "/", -1)
-		if err := os.MkdirAll(form.LFSRootPath, os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(form.LFSRootPath, os.ModePerm); err != nil {
 			ctx.Data["Err_LFSRootPath"] = true
 			ctx.RenderWithErr(ctx.Tr("install.invalid_lfs_path", err), tplInstall, &form)
 			return
@@ -191,7 +192,7 @@ func InstallPost(ctx *context.Context, form auth.InstallForm) {
 
 	// Test log root path.
 	form.LogRootPath = strings.Replace(form.LogRootPath, "\\", "/", -1)
-	if err = os.MkdirAll(form.LogRootPath, os.ModePerm); err != nil {
+	if err = fs.AppFs.MkdirAll(form.LogRootPath, os.ModePerm); err != nil {
 		ctx.Data["Err_LogRootPath"] = true
 		ctx.RenderWithErr(ctx.Tr("install.invalid_log_root_path", err), tplInstall, &form)
 		return
@@ -341,7 +342,7 @@ func InstallPost(ctx *context.Context, form auth.InstallForm) {
 	}
 	cfg.Section("security").Key("SECRET_KEY").SetValue(secretKey)
 
-	err = os.MkdirAll(filepath.Dir(setting.CustomConf), os.ModePerm)
+	err = fs.AppFs.MkdirAll(filepath.Dir(setting.CustomConf), os.ModePerm)
 	if err != nil {
 		ctx.RenderWithErr(ctx.Tr("install.save_config_failed", err), tplInstall, &form)
 		return

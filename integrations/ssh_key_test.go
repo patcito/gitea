@@ -9,11 +9,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	api "code.gitea.io/gitea/modules/structs"
 
@@ -63,11 +63,11 @@ func testPushDeployKeyOnEmptyRepo(t *testing.T, u *url.URL) {
 		// Setup the testing repository
 		dstPath, err := ioutil.TempDir("", "repo-tmp-deploy-key-empty-repo-1")
 		assert.NoError(t, err)
-		defer os.RemoveAll(dstPath)
+		defer fs.AppFs.RemoveAll(dstPath)
 
 		t.Run("InitTestRepository", doGitInitTestRepository(dstPath))
 
-		//Setup remote link
+		// Setup remote link
 		sshURL := createSSHUrl(ctx.GitPath(), u)
 
 		t.Run("AddRemote", doGitAddRemote(dstPath, "origin", sshURL))
@@ -109,7 +109,7 @@ func testKeyOnlyOneType(t *testing.T, u *url.URL) {
 		t.Run("KeyCanOnlyBeUser", func(t *testing.T) {
 			dstPath, err := ioutil.TempDir("", ctx.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstPath)
+			defer fs.AppFs.RemoveAll(dstPath)
 
 			sshURL := createSSHUrl(ctx.GitPath(), u)
 
@@ -135,7 +135,7 @@ func testKeyOnlyOneType(t *testing.T, u *url.URL) {
 		t.Run("KeyCanBeAnyDeployButNotUserAswell", func(t *testing.T) {
 			dstPath, err := ioutil.TempDir("", ctx.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstPath)
+			defer fs.AppFs.RemoveAll(dstPath)
 
 			sshURL := createSSHUrl(ctx.GitPath(), u)
 
@@ -153,7 +153,7 @@ func testKeyOnlyOneType(t *testing.T, u *url.URL) {
 			otherSSHURL := createSSHUrl(otherCtx.GitPath(), u)
 			dstOtherPath, err := ioutil.TempDir("", otherCtx.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstOtherPath)
+			defer fs.AppFs.RemoveAll(dstOtherPath)
 
 			t.Run("AddWriterDeployKeyToOther", doAPICreateDeployKey(otherCtx, keyname, keyFile, false))
 
@@ -170,7 +170,7 @@ func testKeyOnlyOneType(t *testing.T, u *url.URL) {
 			otherSSHURL := createSSHUrl(otherCtx.GitPath(), u)
 			dstOtherPath, err := ioutil.TempDir("", otherCtx.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstOtherPath)
+			defer fs.AppFs.RemoveAll(dstOtherPath)
 
 			t.Run("DeleteRepository", doAPIDeleteRepository(ctx))
 
@@ -192,7 +192,7 @@ func testKeyOnlyOneType(t *testing.T, u *url.URL) {
 
 			dstPath, err := ioutil.TempDir("", ctx.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstPath)
+			defer fs.AppFs.RemoveAll(dstPath)
 
 			sshURL := createSSHUrl(ctx.GitPath(), u)
 
@@ -206,7 +206,7 @@ func testKeyOnlyOneType(t *testing.T, u *url.URL) {
 		t.Run("DeleteUserKeyShouldRemoveAbilityToClone", func(t *testing.T) {
 			dstPath, err := ioutil.TempDir("", ctx.Reponame)
 			assert.NoError(t, err)
-			defer os.RemoveAll(dstPath)
+			defer fs.AppFs.RemoveAll(dstPath)
 
 			sshURL := createSSHUrl(ctx.GitPath(), u)
 

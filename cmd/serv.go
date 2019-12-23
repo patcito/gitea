@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/pprof"
 	"code.gitea.io/gitea/modules/private"
@@ -140,7 +141,7 @@ func runServ(c *cli.Context) error {
 	reponame := strings.ToLower(strings.TrimSuffix(rr[1], ".git"))
 
 	if setting.EnablePprof || c.Bool("enable-pprof") {
-		if err := os.MkdirAll(setting.PprofDataPath, os.ModePerm); err != nil {
+		if err := fs.AppFs.MkdirAll(setting.PprofDataPath, os.ModePerm); err != nil {
 			fail("Error while trying to create PPROF_DATA_PATH", "Error while trying to create PPROF_DATA_PATH: %v", err)
 		}
 
@@ -194,7 +195,7 @@ func runServ(c *cli.Context) error {
 	os.Setenv(models.EnvIsDeployKey, fmt.Sprintf("%t", results.IsDeployKey))
 	os.Setenv(models.EnvKeyID, fmt.Sprintf("%d", results.KeyID))
 
-	//LFS token authentication
+	// LFS token authentication
 	if verb == lfsAuthenticateVerb {
 		url := fmt.Sprintf("%s%s/%s.git/info/lfs", setting.AppURL, url.PathEscape(results.OwnerName), url.PathEscape(results.RepoName))
 

@@ -387,7 +387,7 @@ func Represent(rv *RequestVars, meta *models.LFSMetaObject, download, upload boo
 	header := make(map[string]string)
 
 	if rv.Authorization == "" {
-		//https://github.com/github/git-lfs/issues/1088
+		// https://github.com/github/git-lfs/issues/1088
 		header["Authorization"] = "Authorization: Basic dummy"
 	} else {
 		header["Authorization"] = rv.Authorization

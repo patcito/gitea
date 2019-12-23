@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/markup"
 	"code.gitea.io/gitea/modules/markup/external"
 	"code.gitea.io/gitea/modules/setting"
@@ -78,7 +79,7 @@ func runPR() {
 
 	log.Printf("[PR] Loading fixtures data ...\n")
 	setting.CheckLFSVersion()
-	//models.LoadConfigs()
+	// models.LoadConfigs()
 	/*
 		setting.Database.Type = "sqlite3"
 		setting.Database.Path = ":memory:"
@@ -90,14 +91,14 @@ func runPR() {
 
 	routers.NewServices()
 	setting.Database.LogSQL = true
-	//x, err = xorm.NewEngine("sqlite3", "file::memory:?cache=shared")
+	// x, err = xorm.NewEngine("sqlite3", "file::memory:?cache=shared")
 
 	var helper testfixtures.Helper = &testfixtures.SQLite{}
 	models.NewEngine(context.Background(), func(_ *xorm.Engine) error {
 		return nil
 	})
 	models.HasEngine = true
-	//x.ShowSQL(true)
+	// x.ShowSQL(true)
 	err = models.InitFixtures(
 		helper,
 		path.Join(curDir, "models/fixtures/"),
@@ -107,12 +108,12 @@ func runPR() {
 		os.Exit(1)
 	}
 	models.LoadFixtures()
-	os.RemoveAll(setting.RepoRootPath)
-	os.RemoveAll(models.LocalCopyPath())
+	fs.AppFs.RemoveAll(setting.RepoRootPath)
+	fs.AppFs.RemoveAll(models.LocalCopyPath())
 	com.CopyDir(path.Join(curDir, "integrations/gitea-repositories-meta"), setting.RepoRootPath)
 
 	log.Printf("[PR] Setting up router\n")
-	//routers.GlobalInit()
+	// routers.GlobalInit()
 	external.RegisterParsers()
 	markup.Init()
 	m := routes.NewMacaron()
@@ -135,25 +136,25 @@ func runPR() {
 		}
 	*/
 
-	//Start the server
+	// Start the server
 	http.ListenAndServe(":8080", context2.ClearHandler(m))
 
 	log.Printf("[PR] Cleaning up ...\n")
 	/*
-		if err = os.RemoveAll(setting.Indexer.IssuePath); err != nil {
-			fmt.Printf("os.RemoveAll: %v\n", err)
+		if err = fs.AppFs.RemoveAll(setting.Indexer.IssuePath); err != nil {
+			fmt.Printf("fs.AppFs.RemoveAll: %v\n", err)
 			os.Exit(1)
 		}
-		if err = os.RemoveAll(setting.Indexer.RepoPath); err != nil {
+		if err = fs.AppFs.RemoveAll(setting.Indexer.RepoPath); err != nil {
 			fmt.Printf("Unable to remove repo indexer: %v\n", err)
 			os.Exit(1)
 		}
 	*/
-	if err = os.RemoveAll(setting.RepoRootPath); err != nil {
-		log.Fatalf("os.RemoveAll: %v\n", err)
+	if err = fs.AppFs.RemoveAll(setting.RepoRootPath); err != nil {
+		log.Fatalf("fs.AppFs.RemoveAll: %v\n", err)
 	}
-	if err = os.RemoveAll(setting.AppDataPath); err != nil {
-		log.Fatalf("os.RemoveAll: %v\n", err)
+	if err = fs.AppFs.RemoveAll(setting.AppDataPath); err != nil {
+		log.Fatalf("fs.AppFs.RemoveAll: %v\n", err)
 	}
 }
 
@@ -171,15 +172,15 @@ func main() {
 		force = false
 	}
 
-	//Otherwise checkout PR
+	// Otherwise checkout PR
 	if len(os.Args) != 2 {
 		log.Fatal("Need only one arg: the PR number")
 	}
 	pr := os.Args[1]
 
-	codeFilePath = filepath.FromSlash(codeFilePath) //Convert to running OS
+	codeFilePath = filepath.FromSlash(codeFilePath) // Convert to running OS
 
-	//Copy this file if it will not exist in the PR branch
+	// Copy this file if it will not exist in the PR branch
 	dat, err := ioutil.ReadFile(codeFilePath)
 	if err != nil {
 		log.Fatalf("Failed to cache this code file : %v", err)
@@ -190,14 +191,14 @@ func main() {
 		log.Fatalf("Failed to open the repo : %v", err)
 	}
 
-	//Find remote upstream
+	// Find remote upstream
 	remotes, err := repo.Remotes()
 	if err != nil {
 		log.Fatalf("Failed to list remotes of repo : %v", err)
 	}
-	remoteUpstream := "origin" //Default
+	remoteUpstream := "origin" // Default
 	for _, r := range remotes {
-		if r.Config().URLs[0] == "https://github.com/go-gitea/gitea" || r.Config().URLs[0] == "git@github.com:go-gitea/gitea.git" { //fetch at index 0
+		if r.Config().URLs[0] == "https://github.com/go-gitea/gitea" || r.Config().URLs[0] == "git@github.com:go-gitea/gitea.git" { // fetch at index 0
 			remoteUpstream = r.Config().Name
 			break
 		}
@@ -208,7 +209,7 @@ func main() {
 
 	log.Printf("Fetching PR #%s in %s\n", pr, branch)
 	if runtime.GOOS == "windows" {
-		//Use git cli command for windows
+		// Use git cli command for windows
 		runCmd("git", "fetch", remoteUpstream, fmt.Sprintf("pull/%s/head:%s", pr, branch))
 	} else {
 		ref := fmt.Sprintf("refs/pull/%s/head:%s", pr, branchRef)
@@ -236,9 +237,9 @@ func main() {
 		log.Fatalf("Failed to checkout %s : %v", branch, err)
 	}
 
-	//Copy this file if not exist
-	if _, err := os.Stat(codeFilePath); os.IsNotExist(err) {
-		err = os.MkdirAll(filepath.Dir(codeFilePath), 0755)
+	// Copy this file if not exist
+	if _, err := fs.AppFs.Stat(codeFilePath); os.IsNotExist(err) {
+		err = fs.AppFs.MkdirAll(filepath.Dir(codeFilePath), 0755)
 		if err != nil {
 			log.Fatalf("Failed to duplicate this code file in PR : %v", err)
 		}
@@ -248,7 +249,7 @@ func main() {
 		}
 	}
 	time.Sleep(5 * time.Second)
-	//Start with integration test
+	// Start with integration test
 	runCmd("go", "run", "-tags", "sqlite sqlite_unlock_notify", codeFilePath, "-run")
 }
 func runCmd(cmd ...string) {

@@ -6,11 +6,11 @@ package repofiles
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/lfs"
 	"code.gitea.io/gitea/modules/setting"
 )
@@ -94,7 +94,7 @@ func UploadRepoFiles(repo *models.Repository, doer *models.User, opts *UploadRep
 
 	// Copy uploaded files into repository.
 	for i, uploadInfo := range infos {
-		file, err := os.Open(uploadInfo.upload.LocalPath())
+		file, err := fs.AppFs.Open(uploadInfo.upload.LocalPath())
 		if err != nil {
 			return err
 		}
@@ -169,7 +169,7 @@ func UploadRepoFiles(repo *models.Repository, doer *models.User, opts *UploadRep
 			continue
 		}
 		if !contentStore.Exists(uploadInfo.lfsMetaObject) {
-			file, err := os.Open(uploadInfo.upload.LocalPath())
+			file, err := fs.AppFs.Open(uploadInfo.upload.LocalPath())
 			if err != nil {
 				return cleanUpAfterFailure(&infos, t, err)
 			}

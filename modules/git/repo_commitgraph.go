@@ -9,6 +9,9 @@ import (
 	"os"
 	"path"
 
+	"github.com/spf13/afero"
+
+	"code.gitea.io/gitea/modules/fs"
 	gitealog "code.gitea.io/gitea/modules/log"
 
 	"gopkg.in/src-d/go-git.v4/plumbing/format/commitgraph"
@@ -16,10 +19,10 @@ import (
 )
 
 // CommitNodeIndex returns the index for walking commit graph
-func (r *Repository) CommitNodeIndex() (cgobject.CommitNodeIndex, *os.File) {
+func (r *Repository) CommitNodeIndex() (cgobject.CommitNodeIndex, afero.File) {
 	indexPath := path.Join(r.Path, "objects", "info", "commit-graph")
 
-	file, err := os.Open(indexPath)
+	file, err := fs.AppFs.Open(indexPath)
 	if err == nil {
 		var index commitgraph.Index
 		index, err = commitgraph.OpenFileIndex(file)

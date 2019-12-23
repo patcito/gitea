@@ -25,6 +25,7 @@ import (
 
 	"code.gitea.io/gitea/modules/avatar"
 	"code.gitea.io/gitea/modules/base"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/generate"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
@@ -1013,7 +1014,7 @@ func ChangeUserName(u *User, newUserName string) (err error) {
 	}
 
 	// Do not fail if directory does not exist
-	if err = os.Rename(UserPath(u.Name), UserPath(newUserName)); err != nil && !os.IsNotExist(err) {
+	if err = fs.AppFs.Rename(UserPath(u.Name), UserPath(newUserName)); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("Rename user directory: %v", err)
 	}
 
@@ -1192,7 +1193,7 @@ func deleteUser(e *xorm.Session, u *User) error {
 	//	so just keep error logs of those operations.
 	path := UserPath(u.Name)
 
-	if err := os.RemoveAll(path); err != nil {
+	if err := fs.AppFs.RemoveAll(path); err != nil {
 		return fmt.Errorf("Failed to RemoveAll %s: %v", path, err)
 	}
 

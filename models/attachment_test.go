@@ -5,11 +5,12 @@
 package models
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 func TestUploadAttachment(t *testing.T) {
@@ -18,7 +19,7 @@ func TestUploadAttachment(t *testing.T) {
 	user := AssertExistsAndLoadBean(t, &User{ID: 1}).(*User)
 
 	var fPath = "./attachment_test.go"
-	f, err := os.Open(fPath)
+	f, err := fs.AppFs.Open(fPath)
 	assert.NoError(t, err)
 	defer f.Close()
 

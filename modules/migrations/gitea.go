@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/migrations/base"
@@ -486,7 +487,7 @@ func (g *GiteaLocalUploader) newPullRequest(pr *base.PullRequest) (*models.PullR
 		}
 		defer resp.Body.Close()
 		pullDir := filepath.Join(g.repo.RepoPath(), "pulls")
-		if err = os.MkdirAll(pullDir, os.ModePerm); err != nil {
+		if err = fs.AppFs.MkdirAll(pullDir, os.ModePerm); err != nil {
 			return err
 		}
 		f, err := os.Create(filepath.Join(pullDir, fmt.Sprintf("%d.patch", pr.Number)))
@@ -503,7 +504,7 @@ func (g *GiteaLocalUploader) newPullRequest(pr *base.PullRequest) (*models.PullR
 
 	// set head information
 	pullHead := filepath.Join(g.repo.RepoPath(), "refs", "pull", fmt.Sprintf("%d", pr.Number))
-	if err := os.MkdirAll(pullHead, os.ModePerm); err != nil {
+	if err := fs.AppFs.MkdirAll(pullHead, os.ModePerm); err != nil {
 		return nil, err
 	}
 	p, err := os.Create(filepath.Join(pullHead, "head"))
@@ -538,7 +539,7 @@ func (g *GiteaLocalUploader) newPullRequest(pr *base.PullRequest) (*models.PullR
 					log.Error("Fetch branch from %s failed: %v", pr.Head.CloneURL, err)
 				} else {
 					headBranch := filepath.Join(g.repo.RepoPath(), "refs", "heads", pr.Head.OwnerName, pr.Head.Ref)
-					if err := os.MkdirAll(filepath.Dir(headBranch), os.ModePerm); err != nil {
+					if err := fs.AppFs.MkdirAll(filepath.Dir(headBranch), os.ModePerm); err != nil {
 						return nil, err
 					}
 					b, err := os.Create(headBranch)

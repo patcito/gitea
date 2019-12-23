@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/process"
 	"code.gitea.io/gitea/modules/setting"
@@ -225,7 +226,11 @@ func SSHKeyGenParsePublicKey(key string) (string, int, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("writeTmpKeyFile: %v", err)
 	}
-	defer os.Remove(tmpName)
+	defer func() {
+		if err := fs.AppFs.Remove(tmpName); err != nil {
+			log.Error("SSHKeyGenParsePublicKey failed to remove temp file: %v", err)
+		}
+	}()
 
 	stdout, stderr, err := process.GetManager().Exec("SSHKeyGenParsePublicKey", setting.SSH.KeygenPath, "-lf", tmpName)
 	if err != nil {
@@ -363,7 +368,7 @@ func appendAuthorizedKeysToFile(keys ...*PublicKey) error {
 		// This of course doesn't guarantee that this is the right directory for authorized_keys
 		// but at least if it's supposed to be this directory and it doesn't exist and we're the
 		// right user it will at least be created properly.
-		err := os.MkdirAll(setting.SSH.RootPath, 0700)
+		err := fs.AppFs.MkdirAll(setting.SSH.RootPath, 0700)
 		if err != nil {
 			log.Error("Unable to MkdirAll(%s): %v", setting.SSH.RootPath, err)
 			return err
@@ -371,7 +376,7 @@ func appendAuthorizedKeysToFile(keys ...*PublicKey) error {
 	}
 
 	fPath := filepath.Join(setting.SSH.RootPath, "authorized_keys")
-	f, err := os.OpenFile(fPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+	f, err := fs.AppFs.OpenFile(fPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
 		return err
 	}
@@ -387,7 +392,7 @@ func appendAuthorizedKeysToFile(keys ...*PublicKey) error {
 		// .ssh directory should have mode 700, and authorized_keys file should have mode 600.
 		if fi.Mode().Perm() > 0600 {
 			log.Error("authorized_keys file has unusual permission flags: %s - setting to -rw-------", fi.Mode().Perm().String())
-			if err = f.Chmod(0600); err != nil {
+			if err = fs.AppFs.Chmod(f.Name(), 0600); err != nil {
 				return err
 			}
 		}
@@ -421,7 +426,11 @@ func calcFingerprintSSHKeygen(publicKeyContent string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer os.Remove(tmpPath)
+	defer func() {
+		if err := fs.AppFs.Remove(tmpPath); err != nil {
+			log.Error("calcFingerprintSSHKeygen failed to remove temp file: %v", err)
+		}
+	}()
 	stdout, stderr, err := process.GetManager().Exec("AddPublicKey", "ssh-keygen", "-lf", tmpPath)
 	if err != nil {
 		return "", fmt.Errorf("'ssh-keygen -lf %s' failed with error '%s': %s", tmpPath, err, stderr)
@@ -441,7 +450,7 @@ func calcFingerprintNative(publicKeyContent string) (string, error) {
 }
 
 func calcFingerprint(publicKeyContent string) (string, error) {
-	//Call the method based on configuration
+	// Call the method based on configuration
 	var (
 		fnName, fp string
 		err        error
@@ -649,7 +658,7 @@ func RewriteAllPublicKeys() error {
 }
 
 func rewriteAllPublicKeys(e Engine) error {
-	//Don't rewrite key if internal server
+	// Don't rewrite key if internal server
 	if setting.SSH.StartBuiltinServer || !setting.SSH.CreateAuthorizedKeysFile {
 		return nil
 	}
@@ -662,7 +671,7 @@ func rewriteAllPublicKeys(e Engine) error {
 		// This of course doesn't guarantee that this is the right directory for authorized_keys
 		// but at least if it's supposed to be this directory and it doesn't exist and we're the
 		// right user it will at least be created properly.
-		err := os.MkdirAll(setting.SSH.RootPath, 0700)
+		err := fs.AppFs.MkdirAll(setting.SSH.RootPath, 0700)
 		if err != nil {
 			log.Error("Unable to MkdirAll(%s): %v", setting.SSH.RootPath, err)
 			return err
@@ -671,13 +680,17 @@ func rewriteAllPublicKeys(e Engine) error {
 
 	fPath := filepath.Join(setting.SSH.RootPath, "authorized_keys")
 	tmpPath := fPath + ".tmp"
-	t, err := os.OpenFile(tmpPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	t, err := fs.AppFs.OpenFile(tmpPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		t.Close()
-		os.Remove(tmpPath)
+		if err := t.Close(); err != nil {
+			log.Error("Unable to close temp file: %v", err)
+		}
+		if err := fs.AppFs.Remove(tmpPath); err != nil {
+			log.Error("Unable to remove temp file: %v", err)
+		}
 	}()
 
 	if setting.SSH.AuthorizedKeysBackup && com.IsExist(fPath) {
@@ -696,7 +709,7 @@ func rewriteAllPublicKeys(e Engine) error {
 	}
 
 	if com.IsExist(fPath) {
-		f, err := os.Open(fPath)
+		f, err := fs.AppFs.Open(fPath)
 		if err != nil {
 			return err
 		}
@@ -717,7 +730,7 @@ func rewriteAllPublicKeys(e Engine) error {
 	}
 
 	t.Close()
-	return os.Rename(tmpPath, fPath)
+	return fs.AppFs.Rename(tmpPath, fPath)
 }
 
 // ________                .__                 ____  __.

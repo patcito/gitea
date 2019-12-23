@@ -17,12 +17,14 @@ import (
 	"strings"
 	"time"
 
-	gitealog "code.gitea.io/gitea/modules/log"
 	"github.com/unknwon/com"
 	"gopkg.in/src-d/go-billy.v4/osfs"
 	gogit "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/cache"
 	"gopkg.in/src-d/go-git.v4/storage/filesystem"
+
+	"code.gitea.io/gitea/modules/fs"
+	gitealog "code.gitea.io/gitea/modules/log"
 )
 
 // Repository represents a Git repository.
@@ -79,7 +81,7 @@ func IsRepoURLAccessible(url string) bool {
 
 // InitRepository initializes a new Git repository.
 func InitRepository(repoPath string, bare bool) error {
-	err := os.MkdirAll(repoPath, os.ModePerm)
+	err := fs.AppFs.MkdirAll(repoPath, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -174,7 +176,7 @@ func Clone(from, to string, opts CloneRepoOptions) (err error) {
 // CloneWithArgs original repository to target path.
 func CloneWithArgs(from, to string, args []string, opts CloneRepoOptions) (err error) {
 	toDir := path.Dir(to)
-	if err = os.MkdirAll(toDir, os.ModePerm); err != nil {
+	if err = fs.AppFs.MkdirAll(toDir, os.ModePerm); err != nil {
 		return err
 	}
 

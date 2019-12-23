@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethantkoenig/rupture"
+
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/charset"
@@ -18,7 +20,6 @@ import (
 	"code.gitea.io/gitea/modules/graceful"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
-	"github.com/ethantkoenig/rupture"
 )
 
 type repoIndexerOperation struct {

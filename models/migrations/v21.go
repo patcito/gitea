@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"github.com/unknwon/com"
@@ -27,13 +28,13 @@ func useNewPublickeyFormat(x *xorm.Engine) error {
 	}
 
 	tmpPath := fpath + ".tmp"
-	f, err := os.OpenFile(tmpPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := fs.AppFs.OpenFile(tmpPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		f.Close()
-		os.Remove(tmpPath)
+		fs.AppFs.Remove(tmpPath)
 	}()
 
 	type PublicKey struct {
@@ -51,5 +52,5 @@ func useNewPublickeyFormat(x *xorm.Engine) error {
 	}
 
 	f.Close()
-	return os.Rename(tmpPath, fpath)
+	return fs.AppFs.Rename(tmpPath, fpath)
 }

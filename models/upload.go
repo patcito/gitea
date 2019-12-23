@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	gouuid "github.com/satori/go.uuid"
@@ -51,7 +52,7 @@ func NewUpload(name string, buf []byte, file multipart.File) (_ *Upload, err err
 	}
 
 	localPath := upload.LocalPath()
-	if err = os.MkdirAll(path.Dir(localPath), os.ModePerm); err != nil {
+	if err = fs.AppFs.MkdirAll(path.Dir(localPath), os.ModePerm); err != nil {
 		return nil, fmt.Errorf("MkdirAll: %v", err)
 	}
 
@@ -129,7 +130,7 @@ func DeleteUploads(uploads ...*Upload) (err error) {
 			continue
 		}
 
-		if err := os.Remove(localPath); err != nil {
+		if err := fs.AppFs.Remove(localPath); err != nil {
 			return fmt.Errorf("remove upload: %v", err)
 		}
 	}

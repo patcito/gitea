@@ -37,7 +37,7 @@ func Test_CmdKeys(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				realStdout := os.Stdout //Backup Stdout
+				realStdout := os.Stdout // Backup Stdout
 				r, w, _ := os.Pipe()
 				os.Stdout = w
 
@@ -55,7 +55,7 @@ func Test_CmdKeys(t *testing.T) {
 				if tt.expectedOutput != commandOutput {
 					t.Errorf("expectedOutput: %#v, commandOutput: %#v", tt.expectedOutput, commandOutput)
 				}
-				//Restore stdout
+				// Restore stdout
 				os.Stdout = realStdout
 			})
 		}

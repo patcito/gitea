@@ -9,8 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"code.gitea.io/gitea/models"
 	"github.com/stretchr/testify/assert"
+
+	"code.gitea.io/gitea/models"
 )
 
 func TestMain(m *testing.M) {

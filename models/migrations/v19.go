@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"github.com/unknwon/com"
@@ -66,14 +67,14 @@ func generateAndMigrateGitHooks(x *xorm.Engine) (err error) {
 					continue
 				}
 
-				if err = os.MkdirAll(customHooksDir, os.ModePerm); err != nil {
+				if err = fs.AppFs.MkdirAll(customHooksDir, os.ModePerm); err != nil {
 					return fmt.Errorf("create hooks dir '%s': %v", customHooksDir, err)
 				}
 
 				// WARNING: Old server-side hooks will be moved to sub directory with the same name
 				if hookName != "update" && com.IsExist(oldHookPath) {
 					newPlace := filepath.Join(hookDir, hookName+".d", hookName)
-					if err = os.Rename(oldHookPath, newPlace); err != nil {
+					if err = fs.AppFs.Rename(oldHookPath, newPlace); err != nil {
 						return fmt.Errorf("Remove old hook file '%s' to '%s': %v", oldHookPath, newPlace, err)
 					}
 				}

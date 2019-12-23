@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"strings"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/markup"
 	"code.gitea.io/gitea/modules/setting"
@@ -70,7 +71,11 @@ func (p *Parser) Render(rawBytes []byte, urlPrefix string, metas map[string]stri
 			log.Error("%s create temp file when rendering %s failed: %v", p.Name(), p.Command, err)
 			return []byte("")
 		}
-		defer os.Remove(f.Name())
+		defer func() {
+			if err := fs.AppFs.Remove(f.Name()); err != nil {
+				log.Error("%s remove temp file when rendering %s failed: %v", p.Name(), p.Command, err)
+			}
+		}()
 
 		_, err = io.Copy(f, rd)
 		if err != nil {

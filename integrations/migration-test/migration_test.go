@@ -22,6 +22,7 @@ import (
 	"code.gitea.io/gitea/models/migrations"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/charset"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,7 @@ func initMigrationTest(t *testing.T) func() {
 		os.Exit(1)
 	}
 	setting.AppPath = path.Join(giteaRoot, "gitea")
-	if _, err := os.Stat(setting.AppPath); err != nil {
+	if _, err := fs.AppFs.Stat(setting.AppPath); err != nil {
 		integrations.Printf("Could not find gitea binary at %s\n", setting.AppPath)
 		os.Exit(1)
 	}
@@ -61,7 +62,7 @@ func initMigrationTest(t *testing.T) func() {
 }
 
 func availableVersions() ([]string, error) {
-	migrationsDir, err := os.Open("integrations/migration-test")
+	migrationsDir, err := fs.AppFs.Open("integrations/migration-test")
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +90,11 @@ func availableVersions() ([]string, error) {
 func readSQLFromFile(version string) (string, error) {
 	filename := fmt.Sprintf("integrations/migration-test/gitea-v%s.%s.sql.gz", version, setting.Database.Type)
 
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
+	if _, err := fs.AppFs.Stat(filename); os.IsNotExist(err) {
 		return "", nil
 	}
 
-	file, err := os.Open(filename)
+	file, err := fs.AppFs.Open(filename)
 	if err != nil {
 		return "", err
 	}
@@ -122,8 +123,8 @@ func restoreOldDB(t *testing.T, version string) bool {
 
 	switch {
 	case setting.Database.UseSQLite3:
-		os.Remove(setting.Database.Path)
-		err := os.MkdirAll(path.Dir(setting.Database.Path), os.ModePerm)
+		fs.AppFs.Remove(setting.Database.Path)
+		err := fs.AppFs.MkdirAll(path.Dir(setting.Database.Path), os.ModePerm)
 		assert.NoError(t, err)
 
 		db, err := sql.Open("sqlite3", fmt.Sprintf("file:%s?cache=shared&mode=rwc&_busy_timeout=%d", setting.Database.Path, setting.Database.Timeout))

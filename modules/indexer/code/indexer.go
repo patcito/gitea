@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/setting"
 
 	"github.com/blevesearch/bleve"
@@ -47,7 +48,7 @@ const maxBatchSize = 16
 // updates and bleve version updates.  If index needs to be created (or
 // re-created), returns (nil, nil)
 func openIndexer(path string, latestVersion int) (bleve.Index, error) {
-	_, err := os.Stat(setting.Indexer.IssuePath)
+	_, err := fs.AppFs.Stat(setting.Indexer.IssuePath)
 	if err != nil && os.IsNotExist(err) {
 		return nil, nil
 	} else if err != nil {
@@ -61,14 +62,14 @@ func openIndexer(path string, latestVersion int) (bleve.Index, error) {
 	if metadata.Version < latestVersion {
 		// the indexer is using a previous version, so we should delete it and
 		// re-populate
-		return nil, os.RemoveAll(path)
+		return nil, fs.AppFs.RemoveAll(path)
 	}
 
 	index, err := bleve.Open(path)
 	if err != nil && err == upsidedown.IncompatibleVersion {
 		// the indexer was built with a previous version of bleve, so we should
 		// delete it and re-populate
-		return nil, os.RemoveAll(path)
+		return nil, fs.AppFs.RemoveAll(path)
 	} else if err != nil {
 		return nil, err
 	}

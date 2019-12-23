@@ -18,6 +18,8 @@ import (
 	"github.com/blevesearch/bleve/mapping"
 	"github.com/blevesearch/bleve/search/query"
 	"github.com/ethantkoenig/rupture"
+
+	"code.gitea.io/gitea/modules/fs"
 )
 
 const (
@@ -71,7 +73,7 @@ const maxBatchSize = 16
 // updates and bleve version updates.  If index needs to be created (or
 // re-created), returns (nil, nil)
 func openIndexer(path string, latestVersion int) (bleve.Index, error) {
-	_, err := os.Stat(path)
+	_, err := fs.AppFs.Stat(path)
 	if err != nil && os.IsNotExist(err) {
 		return nil, nil
 	} else if err != nil {
@@ -85,14 +87,14 @@ func openIndexer(path string, latestVersion int) (bleve.Index, error) {
 	if metadata.Version < latestVersion {
 		// the indexer is using a previous version, so we should delete it and
 		// re-populate
-		return nil, os.RemoveAll(path)
+		return nil, fs.AppFs.RemoveAll(path)
 	}
 
 	index, err := bleve.Open(path)
 	if err != nil && err == upsidedown.IncompatibleVersion {
 		// the indexer was built with a previous version of bleve, so we should
 		// delete it and re-populate
-		return nil, os.RemoveAll(path)
+		return nil, fs.AppFs.RemoveAll(path)
 	} else if err != nil {
 		return nil, err
 	}

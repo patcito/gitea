@@ -587,11 +587,11 @@ func (err ErrLastOrgOwner) Error() string {
 	return fmt.Sprintf("user is the last member of owner team [uid: %d]", err.UID)
 }
 
-//.____   ____________________
-//|    |  \_   _____/   _____/
-//|    |   |    __) \_____  \
-//|    |___|     \  /        \
-//|_______ \___  / /_______  /
+// .____   ____________________
+// |    |  \_   _____/   _____/
+// |    |   |    __) \_____  \
+// |    |___|     \  /        \
+// |_______ \___  / /_______  /
 //        \/   \/          \/
 
 // ErrLFSLockNotExist represents a "LFSLockNotExist" kind of error.

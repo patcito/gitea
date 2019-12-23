@@ -6,18 +6,19 @@ package repository
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"strings"
 	"time"
 
+	"gopkg.in/ini.v1"
+
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 	api "code.gitea.io/gitea/modules/structs"
 	"code.gitea.io/gitea/modules/timeutil"
-	"gopkg.in/ini.v1"
 )
 
 /*
@@ -56,7 +57,7 @@ func MigrateRepositoryGitData(doer, u *models.User, repo *models.Repository, opt
 	migrateTimeout := time.Duration(setting.Git.Timeout.Migrate) * time.Second
 
 	var err error
-	if err = os.RemoveAll(repoPath); err != nil {
+	if err = fs.AppFs.RemoveAll(repoPath); err != nil {
 		return repo, fmt.Errorf("Failed to remove %s: %v", repoPath, err)
 	}
 
@@ -72,7 +73,7 @@ func MigrateRepositoryGitData(doer, u *models.User, repo *models.Repository, opt
 		wikiPath := models.WikiPath(u.Name, opts.RepoName)
 		wikiRemotePath := wikiRemoteURL(opts.CloneAddr)
 		if len(wikiRemotePath) > 0 {
-			if err := os.RemoveAll(wikiPath); err != nil {
+			if err := fs.AppFs.RemoveAll(wikiPath); err != nil {
 				return repo, fmt.Errorf("Failed to remove %s: %v", wikiPath, err)
 			}
 
@@ -83,7 +84,7 @@ func MigrateRepositoryGitData(doer, u *models.User, repo *models.Repository, opt
 				Branch:  "master",
 			}); err != nil {
 				log.Warn("Clone wiki: %v", err)
-				if err := os.RemoveAll(wikiPath); err != nil {
+				if err := fs.AppFs.RemoveAll(wikiPath); err != nil {
 					return repo, fmt.Errorf("Failed to remove %s: %v", wikiPath, err)
 				}
 			}

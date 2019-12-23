@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/setting"
 	"code.gitea.io/gitea/modules/ssh"
@@ -30,9 +31,9 @@ func withKeyFile(t *testing.T, keyname string, callback func(string)) {
 
 	tmpDir, err := ioutil.TempDir("", "key-file")
 	assert.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer fs.AppFs.RemoveAll(tmpDir)
 
-	err = os.Chmod(tmpDir, 0700)
+	err = fs.AppFs.Chmod(tmpDir, 0700)
 	assert.NoError(t, err)
 
 	keyFile := filepath.Join(tmpDir, keyname)
@@ -43,7 +44,7 @@ func withKeyFile(t *testing.T, keyname string, callback func(string)) {
 		"ssh -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\" -o \"IdentitiesOnly=yes\" -i \""+keyFile+"\" \"$@\""), 0700)
 	assert.NoError(t, err)
 
-	//Setup ssh wrapper
+	// Setup ssh wrapper
 	os.Setenv("GIT_SSH", path.Join(tmpDir, "ssh"))
 	os.Setenv("GIT_SSH_COMMAND",
 		"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -i \""+keyFile+"\"")
@@ -103,7 +104,7 @@ func onGiteaRun(t *testing.T, callback func(*testing.T, *url.URL), prepare ...bo
 	}()
 
 	go s.Serve(listener)
-	//Started by config go ssh.Listen(setting.SSH.ListenHost, setting.SSH.ListenPort, setting.SSH.ServerCiphers, setting.SSH.ServerKeyExchanges, setting.SSH.ServerMACs)
+	// Started by config go ssh.Listen(setting.SSH.ListenHost, setting.SSH.ListenPort, setting.SSH.ServerCiphers, setting.SSH.ServerKeyExchanges, setting.SSH.ServerMACs)
 
 	callback(t, u)
 }

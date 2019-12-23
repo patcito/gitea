@@ -15,6 +15,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"code.gitea.io/gitea/modules/fs"
+
+	"github.com/spf13/afero"
 )
 
 // FileLogger implements LoggerProvider.
@@ -45,7 +49,7 @@ type FileLogger struct {
 // MuxWriter an *os.File writer with locker.
 type MuxWriter struct {
 	mu    sync.Mutex
-	fd    *os.File
+	f     afero.File
 	owner *FileLogger
 }
 
@@ -54,27 +58,27 @@ func (mw *MuxWriter) Write(b []byte) (int, error) {
 	mw.mu.Lock()
 	defer mw.mu.Unlock()
 	mw.owner.docheck(len(b))
-	return mw.fd.Write(b)
+	return mw.f.Write(b)
 }
 
 // Close the internal writer
 func (mw *MuxWriter) Close() error {
-	return mw.fd.Close()
+	return mw.f.Close()
 }
 
-// SetFd sets os.File in writer.
-func (mw *MuxWriter) SetFd(fd *os.File) {
-	if mw.fd != nil {
-		mw.fd.Close()
+// SetFd sets afero.File in writer.
+func (mw *MuxWriter) SetFd(f afero.File) {
+	if mw.f != nil {
+		mw.f.Close()
 	}
-	mw.fd = fd
+	mw.f = f
 }
 
 // NewFileLogger create a FileLogger returning as LoggerProvider.
 func NewFileLogger() LoggerProvider {
 	log := &FileLogger{
 		Filename:         "",
-		Maxsize:          1 << 28, //256 MB
+		Maxsize:          1 << 28, // 256 MB
 		Daily:            true,
 		Maxdays:          7,
 		Rotate:           true,
@@ -133,13 +137,13 @@ func (log *FileLogger) docheck(size int) {
 	log.maxsizeCursize += size
 }
 
-func (log *FileLogger) createLogFile() (*os.File, error) {
+func (log *FileLogger) createLogFile() (afero.File, error) {
 	// Open the log file
-	return os.OpenFile(log.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
+	return fs.AppFs.OpenFile(log.Filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 }
 
 func (log *FileLogger) initFd() error {
-	fd := log.mw.fd
+	fd := log.mw.f
 	finfo, err := fd.Stat()
 	if err != nil {
 		return fmt.Errorf("get stat: %v", err)
@@ -169,12 +173,12 @@ func (log *FileLogger) DoRotate() error {
 			return fmt.Errorf("rotate: cannot find free log number to rename %s", log.Filename)
 		}
 
-		fd := log.mw.fd
+		fd := log.mw.f
 		fd.Close()
 
-		// close fd before rename
+		// close f before rename
 		// Rename the file to its newfound home
-		if err = os.Rename(log.Filename, fname); err != nil {
+		if err = fs.AppFs.Rename(log.Filename, fname); err != nil {
 			return fmt.Errorf("Rotate: %v", err)
 		}
 
@@ -194,13 +198,13 @@ func (log *FileLogger) DoRotate() error {
 }
 
 func compressOldLogFile(fname string, compressionLevel int) error {
-	reader, err := os.Open(fname)
+	reader, err := fs.AppFs.Open(fname)
 	if err != nil {
 		return err
 	}
 	defer reader.Close()
 	buffer := bufio.NewReader(reader)
-	fw, err := os.OpenFile(fname+".gz", os.O_WRONLY|os.O_CREATE, 0660)
+	fw, err := fs.AppFs.OpenFile(fname+".gz", os.O_WRONLY|os.O_CREATE, 0660)
 	if err != nil {
 		return err
 	}
@@ -214,11 +218,11 @@ func compressOldLogFile(fname string, compressionLevel int) error {
 	if err != nil {
 		zw.Close()
 		fw.Close()
-		os.Remove(fname + ".gz")
+		fs.AppFs.Remove(fname + ".gz")
 		return err
 	}
 	reader.Close()
-	return os.Remove(fname)
+	return fs.AppFs.Remove(fname)
 }
 
 func (log *FileLogger) deleteOldLog() {
@@ -233,7 +237,7 @@ func (log *FileLogger) deleteOldLog() {
 		if !info.IsDir() && info.ModTime().Unix() < (time.Now().Unix()-60*60*24*log.Maxdays) {
 			if strings.HasPrefix(filepath.Base(path), filepath.Base(log.Filename)) {
 
-				if err := os.Remove(path); err != nil {
+				if err := fs.AppFs.Remove(path); err != nil {
 					returnErr = fmt.Errorf("Failed to remove %s: %v", path, err)
 				}
 			}
@@ -246,7 +250,7 @@ func (log *FileLogger) deleteOldLog() {
 // there are no buffering messages in file logger in memory.
 // flush file means sync file from disk.
 func (log *FileLogger) Flush() {
-	_ = log.mw.fd.Sync()
+	_ = log.mw.f.Sync()
 }
 
 // GetName returns the default name for this implementation

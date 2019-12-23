@@ -25,6 +25,7 @@ import (
 	"time"
 	"unicode"
 
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
@@ -430,7 +431,7 @@ func SetupGiteaRoot() string {
 				giteaRoot = wd
 			}
 		}
-		if _, err := os.Stat(filepath.Join(giteaRoot, "gitea")); os.IsNotExist(err) {
+		if _, err := fs.AppFs.Stat(filepath.Join(giteaRoot, "gitea")); os.IsNotExist(err) {
 			giteaRoot = ""
 		} else if err := os.Setenv("GITEA_ROOT", giteaRoot); err != nil {
 			giteaRoot = ""

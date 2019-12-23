@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 )
@@ -103,7 +104,7 @@ func TestPatch(pr *models.PullRequest) error {
 		return fmt.Errorf("Unable to create temporary patch file! Error: %v", err)
 	}
 	defer func() {
-		_ = os.Remove(tmpPatchFile.Name())
+		_ = fs.AppFs.Remove(tmpPatchFile.Name())
 	}()
 
 	if err := gitRepo.GetDiff(pr.MergeBase, "tracking", tmpPatchFile); err != nil {

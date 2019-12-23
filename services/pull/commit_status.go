@@ -6,9 +6,10 @@
 package pull
 
 import (
+	"github.com/pkg/errors"
+
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/git"
-	"github.com/pkg/errors"
 )
 
 // IsCommitStatusContextSuccess returns true if all required status check contexts succeed.

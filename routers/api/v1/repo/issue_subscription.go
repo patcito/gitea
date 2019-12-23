@@ -118,7 +118,7 @@ func setIssueSubscription(ctx *context.APIContext, watch bool) {
 		return
 	}
 
-	//only admin and user for itself can change subscription
+	// only admin and user for itself can change subscription
 	if user.ID != ctx.User.ID && !ctx.User.IsAdmin {
 		ctx.Error(http.StatusForbidden, "User", nil)
 		return

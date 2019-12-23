@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 
@@ -70,7 +71,7 @@ func runDump(ctx *cli.Context) error {
 	}
 
 	tmpDir := ctx.String("tempdir")
-	if _, err := os.Stat(tmpDir); os.IsNotExist(err) {
+	if _, err := fs.AppFs.Stat(tmpDir); os.IsNotExist(err) {
 		fatal("Path does not exist: %s", tmpDir)
 	}
 	tmpWorkDir, err := ioutil.TempDir(tmpDir, "gitea-dump-")
@@ -130,7 +131,7 @@ func runDump(ctx *cli.Context) error {
 		}
 	}
 
-	customDir, err := os.Stat(setting.CustomPath)
+	customDir, err := fs.AppFs.Stat(setting.CustomPath)
 	if err == nil && customDir.IsDir() {
 		if err := z.AddDir("custom", setting.CustomPath); err != nil {
 			fatal("Failed to include custom: %v", err)
@@ -156,17 +157,17 @@ func runDump(ctx *cli.Context) error {
 	}
 
 	if err = z.Close(); err != nil {
-		_ = os.Remove(fileName)
+		_ = fs.AppFs.Remove(fileName)
 		fatal("Failed to save %s: %v", fileName, err)
 	}
 
-	if err := os.Chmod(fileName, 0600); err != nil {
+	if err := fs.AppFs.Chmod(fileName, 0600); err != nil {
 		log.Info("Can't change file access permissions mask to 0600: %v", err)
 	}
 
 	log.Info("Removing tmp work dir: %s", tmpWorkDir)
 
-	if err := os.RemoveAll(tmpWorkDir); err != nil {
+	if err := fs.AppFs.RemoveAll(tmpWorkDir); err != nil {
 		fatal("Failed to remove %s: %v", tmpWorkDir, err)
 	}
 	log.Info("Finish dumping in file %s", fileName)
@@ -180,7 +181,7 @@ func zipAddDirectoryExclude(zip *zip.ZipArchive, zipPath, absPath string, exclud
 	if err != nil {
 		return err
 	}
-	dir, err := os.Open(absPath)
+	dir, err := fs.AppFs.Open(absPath)
 	if err != nil {
 		return err
 	}
