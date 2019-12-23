@@ -6,6 +6,7 @@ package integrations
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
 	"code.gitea.io/gitea/models"
@@ -28,18 +29,28 @@ func TestAPIGitTags(t *testing.T) {
 	assert.NoError(t, err)
 	defer gitRepo.Close()
 
+	commit, err := gitRepo.GetBranchCommit("master")
+	assert.NoError(t, err)
+
 	// Set up git config for the tagger
 	git.NewCommand("config", "user.name", user.Name).RunInDir(gitRepo.Path)
 	git.NewCommand("config", "user.email", user.Email).RunInDir(gitRepo.Path)
+	committerName := os.Getenv("GIT_COMMITTER_NAME")
+	committerEmail := os.Getenv("GIT_COMMITTER_EMAIL")
+	os.Setenv("GIT_COMMITTER_NAME", user.Name)
+	os.Setenv("GIT_COMMITTER_EMAIL", user.Email)
 
-	commit, err := gitRepo.GetBranchCommit("master")
-	assert.NoError(t, err)
 	lTagName := "lightweightTag"
 	assert.NoError(t, gitRepo.CreateTag(lTagName, commit.ID.String()))
 
 	aTagName := "annotatedTag"
 	aTagMessage := "my annotated message"
 	assert.NoError(t, gitRepo.CreateAnnotatedTag(aTagName, aTagMessage, commit.ID.String()))
+
+	// Restore default committer env
+	os.Setenv("GIT_COMMITTER_NAME", committerName)
+	os.Setenv("GIT_COMMITTER_EMAIL", committerEmail)
+
 	aTag, err := gitRepo.GetTag(aTagName)
 	assert.NoError(t, err)
 
