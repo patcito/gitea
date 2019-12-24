@@ -43,6 +43,16 @@ services:
     pull: default
     image: gitea/test-openldap:latest
 
+  - name: minio
+     pull: default
+     image: minio/minio:RELEASE.2019-12-24T23-04-45Z
+     commands:
+       - mkdir -p /data/gitea
+       - minio server /data
+     environment:
+>       MINIO_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
+       MINIO_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
+
 steps:
   - name: fetch-tags
     pull: default
@@ -254,6 +264,22 @@ steps:
       GOPROXY: off
       TAGS: bindata
       TEST_LDAP: 1
+    depends_on:
+      - build
+
+  - name: test-s3
+    pull: always
+    image: golang:1.13
+    commands:
+      - "curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash"
+      - apt-get install -y git-lfs
+      - timeout -s ABRT 20m make test-s3-migration
+      - timeout -s ABRT 20m make test-s3
+    environment:
+      GOPROXY: off
+      TAGS: bindata
+      AWS_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
+      AWS_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
     depends_on:
       - build
 
@@ -593,9 +619,9 @@ depends_on:
 
 trigger:
   ref:
-  - refs/heads/master
-  - "refs/tags/**"
-  - "refs/pull/**"
+    - refs/heads/master
+    - "refs/tags/**"
+    - "refs/pull/**"
 
 steps:
   - name: fetch-tags
@@ -637,7 +663,7 @@ steps:
     when:
       event:
         exclude:
-        - pull_request
+          - pull_request
 
 ---
 kind: pipeline
@@ -656,9 +682,9 @@ depends_on:
 
 trigger:
   ref:
-  - refs/heads/master
-  - "refs/tags/**"
-  - "refs/pull/**"
+    - refs/heads/master
+    - "refs/tags/**"
+    - "refs/pull/**"
 
 steps:
   - name: fetch-tags
@@ -700,7 +726,7 @@ steps:
     when:
       event:
         exclude:
-        - pull_request
+          - pull_request
 
 ---
 kind: pipeline
@@ -725,8 +751,8 @@ steps:
 
 trigger:
   ref:
-  - refs/heads/master
-  - "refs/tags/**"
+    - refs/heads/master
+    - "refs/tags/**"
 
 depends_on:
   - docker-linux-amd64

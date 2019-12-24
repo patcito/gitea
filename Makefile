@@ -320,6 +320,18 @@ test-mssql\#%: integrations.mssql.test generate-ini-mssql
 test-mssql-migration: migrations.mssql.test generate-ini-mssql
 	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/mssql.ini ./migrations.mssql.test
 
+.PHONY: test-s3
+test-s3: integrations.s3.test
+	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/s3.ini ./integrations.s3.test
+
+.PHONY: test-s3\#%
+test-s3\#%: integrations.s3.test
+	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/s3.ini ./integrations.s3.test -test.run $*
+
+.PHONY: test-s3-migration
+test-s3-migration:  migrations.s3.test
+	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/s3.ini ./migrations.s3.test
+
 
 .PHONY: bench-sqlite
 bench-sqlite: integrations.sqlite.test
@@ -357,6 +369,9 @@ integrations.mssql.test: $(GO_SOURCES)
 integrations.sqlite.test: $(GO_SOURCES)
 	GO111MODULE=on $(GO) test -mod=vendor -c code.gitea.io/gitea/integrations -o integrations.sqlite.test -tags 'sqlite sqlite_unlock_notify'
 
+integrations.s3.test: $(GO_SOURCES)
+	GO111MODULE=on $(GO) test -mod=vendor -c code.gitea.io/gitea/integrations -o integrations.s3.test -tags 'sqlite sqlite_unlock_notify'
+
 integrations.cover.test: $(GO_SOURCES)
 	GO111MODULE=on $(GO) test -mod=vendor -c code.gitea.io/gitea/integrations -coverpkg $(shell echo $(PACKAGES) | tr ' ' ',') -o integrations.cover.test
 
@@ -379,6 +394,10 @@ migrations.mssql.test: $(GO_SOURCES)
 .PHONY: migrations.sqlite.test
 migrations.sqlite.test: $(GO_SOURCES)
 	$(GO) test -c code.gitea.io/gitea/integrations/migration-test -o migrations.sqlite.test -tags 'sqlite sqlite_unlock_notify'
+
+.PHONY: migrations.s3.test
+migrations.s3.test: $(GO_SOURCES)
+	$(GO) test -c code.gitea.io/gitea/integrations/migration-test -o migrations.s3.test -tags 'sqlite sqlite_unlock_notify'
 
 .PHONY: check
 check: test
