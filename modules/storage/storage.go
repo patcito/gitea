@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"code.gitea.io/gitea/modules/fs"
+	giteafs "code.gitea.io/gitea/modules/fs"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 
@@ -158,7 +158,7 @@ if BUCKET_URL NOT SET {
 // and also returns error if occurs
 func OpenBucket(ctx context.Context, path string) (*blob.Bucket, error) {
 	if filepath.IsAbs(path) {
-		if err := fs.AppFs.MkdirAll(path, 0700); err != nil {
+		if err := giteafs.AppFs.MkdirAll(path, 0700); err != nil {
 			log.Fatal("Failed to create '%s': %v", path, err)
 		}
 		return blob.OpenBucket(ctx, "file://"+path)
