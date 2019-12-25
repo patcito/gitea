@@ -53,13 +53,6 @@ services:
       MINIO_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
       MINIO_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
 
-  - name: gcp
-    pull: default
-    image: fsouza/fake-gcs-server
-    commands:
-      - mkdir -p /data/gitea
-      - /bin/fake-gcs-server
-
 steps:
   - name: fetch-tags
     pull: default
@@ -282,22 +275,6 @@ steps:
       - apt-get install -y git-lfs
       - timeout -s ABRT 20m make test-s3-migration
       - timeout -s ABRT 20m make test-s3
-    environment:
-      GOPROXY: off
-      TAGS: bindata
-      AWS_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
-      AWS_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
-    depends_on:
-      - build
-
-  - name: test-gcp
-    pull: always
-    image: golang:1.13
-    commands:
-      - "curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash"
-      - apt-get install -y git-lfs
-      - timeout -s ABRT 20m make test-gcp-migration
-      - timeout -s ABRT 20m make test-gcp
     environment:
       GOPROXY: off
       TAGS: bindata

@@ -332,18 +332,6 @@ test-s3\#%: integrations.s3.test
 test-s3-migration:  migrations.s3.test
 	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/s3.ini ./migrations.s3.test
 
-.PHONY: test-gcp
-test-gcp: integrations.gcp.test
-	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./integrations.gcp.test
-
-.PHONY: test-gcp\#%
-test-gcp\#%: integrations.gcp.test
-	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./integrations.gcp.test -test.run $*
-
-.PHONY: test-gcp-migration
-test-gcp-migration:  migrations.gcp.test
-	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./migrations.gcp.test
-
 
 .PHONY: bench-sqlite
 bench-sqlite: integrations.sqlite.test
@@ -384,9 +372,6 @@ integrations.sqlite.test: $(GO_SOURCES)
 integrations.s3.test: $(GO_SOURCES)
 	GO111MODULE=on $(GO) test -mod=vendor -c code.gitea.io/gitea/integrations -o integrations.s3.test -tags 'sqlite sqlite_unlock_notify'
 
-integrations.gcp.test: $(GO_SOURCES)
-	GO111MODULE=on $(GO) test -mod=vendor -c code.gitea.io/gitea/integrations -o integrations.gcp.test -tags 'sqlite sqlite_unlock_notify'
-
 integrations.cover.test: $(GO_SOURCES)
 	GO111MODULE=on $(GO) test -mod=vendor -c code.gitea.io/gitea/integrations -coverpkg $(shell echo $(PACKAGES) | tr ' ' ',') -o integrations.cover.test
 
@@ -413,11 +398,6 @@ migrations.sqlite.test: $(GO_SOURCES)
 .PHONY: migrations.s3.test
 migrations.s3.test: $(GO_SOURCES)
 	$(GO) test -c code.gitea.io/gitea/integrations/migration-test -o migrations.s3.test -tags 'sqlite sqlite_unlock_notify'
-
-.PHONY: migrations.gcp.test
-migrations.gcp.test: $(GO_SOURCES)
-	$(GO) test -c code.gitea.io/gitea/integrations/migration-test -o migrations.gcp.test -tags 'sqlite sqlite_unlock_notify'
-
 
 .PHONY: check
 check: test
