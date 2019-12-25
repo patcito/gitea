@@ -56,10 +56,12 @@ func (s *ContentStore) Put(meta *models.LFSMetaObject, r io.Reader) error {
 
 	written, err := io.Copy(hw, r)
 	if err != nil {
-		fw.Close()
+		_ = fw.Close()
 		return err
 	}
-	fw.Close()
+	if err := fw.Close(); err != nil {
+		return err
+	}
 
 	if written != meta.Size {
 		return errSizeMismatch
