@@ -44,14 +44,14 @@ services:
     image: gitea/test-openldap:latest
 
   - name: minio
-     pull: default
-     image: minio/minio:RELEASE.2019-12-24T23-04-45Z
-     commands:
-       - mkdir -p /data/gitea
-       - minio server /data
-     environment:
->       MINIO_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
-       MINIO_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
+    pull: default
+    image: minio/minio:RELEASE.2019-12-24T23-04-45Z
+    commands:
+      - mkdir -p /data/gitea
+      - minio server /data
+    environment:
+      MINIO_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
+      MINIO_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
 
 steps:
   - name: fetch-tags
