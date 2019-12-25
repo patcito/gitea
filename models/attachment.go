@@ -95,11 +95,14 @@ func NewAttachment(attach *Attachment, buf []byte, file io.Reader) (_ *Attachmen
 
 	if _, err = fw.Write(buf); err != nil {
 		return nil, fmt.Errorf("Write: %v", err)
-	} else if _, err = io.Copy(fw, file); err != nil {
+	}
+	if _, err = io.Copy(fw, file); err != nil {
 		return nil, fmt.Errorf("Copy: %v", err)
 	}
+	if err := fw.Close(); err != nil {
+		return nil, fmt.Errorf("Close: %v", err)
+	}
 
-	fw.Close()
 	// Update file size
 	fi, err := fs.Attributes()
 	if err != nil {

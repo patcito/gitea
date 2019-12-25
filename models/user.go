@@ -366,7 +366,11 @@ func (u *User) generateRandomAvatar(e Engine) error {
 	if err != nil {
 		return fmt.Errorf("Create: %v", err)
 	}
-	defer fw.Close()
+	defer func() {
+		if err := fw.Close(); err != nil {
+			log.Error("generateRandomAvatar: Failed to save avatar to storage: %v", err)
+		}
+	}()
 
 	if _, err := e.ID(u.ID).Cols("avatar").Update(u); err != nil {
 		return err
@@ -546,7 +550,11 @@ func (u *User) UploadAvatar(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("Create: %v", err)
 	}
-	defer fw.Close()
+	defer func() {
+		if err := fw.Close(); err != nil {
+			log.Error("UploadAvatar: Failed to save avatar to storage: %v", err)
+		}
+	}()
 
 	if err = png.Encode(fw, *m); err != nil {
 		return fmt.Errorf("Encode: %v", err)

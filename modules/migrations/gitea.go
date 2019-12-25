@@ -279,10 +279,13 @@ func (g *GiteaLocalUploader) CreateReleases(releases ...*base.Release) error {
 			if err != nil {
 				return fmt.Errorf("Create: %v", err)
 			}
-			defer fw.Close()
 
 			if _, err = io.Copy(fw, resp.Body); err != nil {
+				_ = fw.Close()
 				return err
+			}
+			if err := fw.Close(); err != nil {
+				return fmt.Errorf("Close: %v", err)
 			}
 			rel.Attachments = append(rel.Attachments, &attach)
 		}
