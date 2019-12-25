@@ -301,8 +301,8 @@ steps:
     environment:
       GOPROXY: off
       TAGS: bindata
-      AWS_ACCESS_KEY: VNXIDTFDYRAWFVHFNBYC
-      AWS_SECRET_KEY: RLQhwZSKJhHdT/OAINMFW/DNkSaOcxuVqgCmBjVj
+      STORAGE_EMULATOR_HOST: https://gcp:4443/storage/v1/
+      GOOGLE_APPLICATION_CREDENTIALS: ./integrations/gitea-integration-gcp/credential.json
     depends_on:
       - build
 
