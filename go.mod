@@ -3,7 +3,7 @@ module code.gitea.io/gitea
 go 1.13
 
 require (
-	cloud.google.com/go v0.45.0 // indirect
+	cloud.google.com/go/storage v1.4.0 // indirect
 	gitea.com/lunny/levelqueue v0.1.0
 	gitea.com/macaron/binding v0.0.0-20190822013154-a5f53841ed2b
 	gitea.com/macaron/cache v0.0.0-20190822004001-a6e7fee4ee76
