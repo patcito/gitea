@@ -1,10 +1,12 @@
-# cloud.google.com/go v0.45.0
+# cloud.google.com/go v0.46.3
+cloud.google.com/go
 cloud.google.com/go/compute/metadata
 cloud.google.com/go/iam
 cloud.google.com/go/internal
 cloud.google.com/go/internal/optional
 cloud.google.com/go/internal/trace
 cloud.google.com/go/internal/version
+# cloud.google.com/go/storage v1.4.0
 cloud.google.com/go/storage
 # gitea.com/lunny/levelqueue v0.1.0
 gitea.com/lunny/levelqueue
@@ -258,7 +260,12 @@ github.com/gogs/cron
 github.com/golang-sql/civil
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
+github.com/golang/protobuf/protoc-gen-go
 github.com/golang/protobuf/protoc-gen-go/descriptor
+github.com/golang/protobuf/protoc-gen-go/generator
+github.com/golang/protobuf/protoc-gen-go/generator/internal/remap
+github.com/golang/protobuf/protoc-gen-go/grpc
+github.com/golang/protobuf/protoc-gen-go/plugin
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
@@ -310,6 +317,10 @@ github.com/jbenet/go-context/io
 github.com/jessevdk/go-flags
 # github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 github.com/jmespath/go-jmespath
+# github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
+github.com/jstemmer/go-junit-report
+github.com/jstemmer/go-junit-report/formatter
+github.com/jstemmer/go-junit-report/parser
 # github.com/kballard/go-shellquote v0.0.0-20170619183022-cd60e84ee657
 github.com/kballard/go-shellquote
 # github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd
@@ -564,6 +575,12 @@ golang.org/x/crypto/scrypt
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/agent
 golang.org/x/crypto/ssh/knownhosts
+# golang.org/x/exp v0.0.0-20191030013958-a1ab85dbe136
+golang.org/x/exp/apidiff
+golang.org/x/exp/cmd/apidiff
+# golang.org/x/lint v0.0.0-20190930215403-16217165b5de
+golang.org/x/lint
+golang.org/x/lint/golint
 # golang.org/x/net v0.0.0-20191101175033-0deb6923b6d9
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
@@ -613,7 +630,11 @@ golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 golang.org/x/text/width
 # golang.org/x/tools v0.0.0-20191213221258-04c2e8eff935
+golang.org/x/tools/cmd/goimports
+golang.org/x/tools/go/analysis
+golang.org/x/tools/go/analysis/passes/inspect
 golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/go/ast/inspector
 golang.org/x/tools/go/buildutil
 golang.org/x/tools/go/gcexportdata
 golang.org/x/tools/go/internal/cgo
@@ -621,6 +642,8 @@ golang.org/x/tools/go/internal/gcimporter
 golang.org/x/tools/go/internal/packagesdriver
 golang.org/x/tools/go/loader
 golang.org/x/tools/go/packages
+golang.org/x/tools/go/types/objectpath
+golang.org/x/tools/go/types/typeutil
 golang.org/x/tools/imports
 golang.org/x/tools/internal/fastwalk
 golang.org/x/tools/internal/gopathwalk
@@ -630,12 +653,12 @@ golang.org/x/tools/internal/semver
 # golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
-# google.golang.org/api v0.9.0
-google.golang.org/api/gensupport
+# google.golang.org/api v0.14.0
 google.golang.org/api/googleapi
-google.golang.org/api/googleapi/internal/uritemplates
 google.golang.org/api/googleapi/transport
 google.golang.org/api/internal
+google.golang.org/api/internal/gensupport
+google.golang.org/api/internal/third_party/uritemplates
 google.golang.org/api/iterator
 google.golang.org/api/option
 google.golang.org/api/storage/v1
@@ -653,7 +676,7 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
+# google.golang.org/genproto v0.0.0-20191115194625-c23dd37a84c9
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/iam/v1
 google.golang.org/genproto/googleapis/rpc/code
@@ -760,6 +783,32 @@ gopkg.in/testfixtures.v2
 gopkg.in/warnings.v0
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
+# honnef.co/go/tools v0.0.1-2019.2.3
+honnef.co/go/tools/arg
+honnef.co/go/tools/cmd/staticcheck
+honnef.co/go/tools/config
+honnef.co/go/tools/deprecated
+honnef.co/go/tools/facts
+honnef.co/go/tools/functions
+honnef.co/go/tools/go/types/typeutil
+honnef.co/go/tools/internal/cache
+honnef.co/go/tools/internal/passes/buildssa
+honnef.co/go/tools/internal/renameio
+honnef.co/go/tools/internal/sharedcheck
+honnef.co/go/tools/lint
+honnef.co/go/tools/lint/lintdsl
+honnef.co/go/tools/lint/lintutil
+honnef.co/go/tools/lint/lintutil/format
+honnef.co/go/tools/loader
+honnef.co/go/tools/printf
+honnef.co/go/tools/simple
+honnef.co/go/tools/ssa
+honnef.co/go/tools/ssautil
+honnef.co/go/tools/staticcheck
+honnef.co/go/tools/staticcheck/vrp
+honnef.co/go/tools/stylecheck
+honnef.co/go/tools/unused
+honnef.co/go/tools/version
 # mvdan.cc/xurls/v2 v2.1.0
 mvdan.cc/xurls/v2
 # strk.kbt.io/projects/go/libravatar v0.0.0-20191008002943-06d1c002b251
