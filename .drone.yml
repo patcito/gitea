@@ -57,8 +57,8 @@ services:
     pull: default
     image: fsouza/fake-gcs-server
     commands:
-      - mkdir -p /data/gitea
-      - /bin/fake-gcs-server
+      - mkdir -p ./data/gitea
+      - /bin/fake-gcs-server -scheme=http -port=80 -filesystem-root=./data/ -public-host=0.0.0.0
 
 steps:
   - name: fetch-tags
@@ -301,8 +301,7 @@ steps:
     environment:
       GOPROXY: off
       TAGS: bindata
-      STORAGE_EMULATOR_HOST: https://gcp:4443/storage/v1/
-      GOOGLE_APPLICATION_CREDENTIALS: ./integrations/gitea-integration-gcp/credential.json
+      STORAGE_EMULATOR_HOST: gcp
     depends_on:
       - build
 
