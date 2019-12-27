@@ -55,7 +55,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -63,17 +62,15 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/google/wire"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
-
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/driver"
 	"gocloud.dev/gcerrors"
 	"gocloud.dev/gcp"
 	"gocloud.dev/internal/escape"
 	"gocloud.dev/internal/useragent"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const defaultPageSize = 1000
@@ -88,6 +85,7 @@ var Set = wire.NewSet(
 )
 
 // lazyCredsOpener obtains Application Default Credentials on the first call
+// lazyCredsOpener obtains Application Default Credentials on the first call
 // to OpenBucketURL.
 type lazyCredsOpener struct {
 	init   sync.Once
@@ -97,18 +95,11 @@ type lazyCredsOpener struct {
 
 func (o *lazyCredsOpener) OpenBucketURL(ctx context.Context, u *url.URL) (*blob.Bucket, error) {
 	o.init.Do(func() {
-		var creds *google.Credentials
-		if os.Getenv("STORAGE_EMULATOR_HOST") != "" {
-			creds, _ = google.CredentialsFromJSON(ctx, []byte(`{"type": "service_account", "project_id": "my-project-id"}`))
-		} else {
-			var err error
-			creds, err = gcp.DefaultCredentials(ctx)
-			if err != nil {
-				o.err = err
-				return
-			}
+		creds, err := gcp.DefaultCredentials(ctx)
+		if err != nil {
+			o.err = err
+			return
 		}
-
 		client, err := gcp.NewHTTPClient(gcp.DefaultTransport(), creds.TokenSource)
 		if err != nil {
 			o.err = err
@@ -199,18 +190,8 @@ func openBucket(ctx context.Context, client *gcp.HTTPClient, bucketName string, 
 	if bucketName == "" {
 		return nil, errors.New("gcsblob.OpenBucket: bucketName is required")
 	}
-
-	clientOpts := []option.ClientOption{option.WithHTTPClient(useragent.HTTPClient(&client.Client, "blob"))}
-	if host := os.Getenv("STORAGE_EMULATOR_HOST"); host != "" {
-		clientOpts = []option.ClientOption{
-			option.WithoutAuthentication(),
-			option.WithEndpoint("http://" + host + "/storage/v1/"),
-			option.WithHTTPClient(http.DefaultClient),
-		}
-	}
-
 	// We wrap the provided http.Client to add a Go CDK User-Agent.
-	c, err := storage.NewClient(ctx, clientOpts...)
+	c, err := storage.NewClient(ctx, option.WithHTTPClient(useragent.HTTPClient(&client.Client, "blob")))
 	if err != nil {
 		return nil, err
 	}
@@ -452,12 +433,13 @@ func (b *bucket) NewRangeReader(ctx context.Context, key string, offset, length 
 	if rerr != nil {
 		return nil, rerr
 	}
+	modTime, _ := r.LastModified()
 	return &reader{
 		body: r,
 		attrs: driver.ReaderAttributes{
-			ContentType: r.Attrs.ContentType,
-			ModTime:     r.Attrs.LastModified,
-			Size:        r.Attrs.Size,
+			ContentType: r.ContentType(),
+			ModTime:     modTime,
+			Size:        r.Size(),
 		},
 		raw: r,
 	}, nil
@@ -598,7 +580,6 @@ func (b *bucket) SignedURL(ctx context.Context, key string, dopts *driver.Signed
 	opts := &storage.SignedURLOptions{
 		Expires:        time.Now().Add(dopts.Expiry),
 		Method:         dopts.Method,
-		ContentType:    dopts.ContentType,
 		GoogleAccessID: b.opts.GoogleAccessID,
 		PrivateKey:     b.opts.PrivateKey,
 		SignBytes:      b.opts.SignBytes,

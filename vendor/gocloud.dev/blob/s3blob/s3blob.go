@@ -730,9 +730,8 @@ func (b *bucket) SignedURL(ctx context.Context, key string, opts *driver.SignedU
 		return req.Presign(opts.Expiry)
 	case http.MethodPut:
 		in := &s3.PutObjectInput{
-			Bucket:      aws.String(b.name),
-			Key:         aws.String(key),
-			ContentType: aws.String(opts.ContentType),
+			Bucket: aws.String(b.name),
+			Key:    aws.String(key),
 		}
 		req, _ := b.client.PutObjectRequest(in)
 		return req.Presign(opts.Expiry)
