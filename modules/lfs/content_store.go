@@ -95,8 +95,11 @@ func (s *ContentStore) Verify(meta *models.LFSMetaObject) (bool, error) {
 	}
 
 	fi, err := fs.Attributes()
-	if err != nil || fi.Size != meta.Size {
-		return false, nil
+	if err != nil {
+		return false, err
+	}
+	if fi.Size != meta.Size {
+		return false, errSizeMismatch
 	}
 
 	return true, nil
