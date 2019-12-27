@@ -40,9 +40,9 @@ gitea.com/macaron/session/postgres
 gitea.com/macaron/session/redis
 # gitea.com/macaron/toolbox v0.0.0-20190822013122-05ff0fc766b7
 gitea.com/macaron/toolbox
-# github.com/Azure/azure-pipeline-go v0.2.1
+# github.com/Azure/azure-pipeline-go v0.1.9
 github.com/Azure/azure-pipeline-go/pipeline
-# github.com/Azure/azure-storage-blob-go v0.8.0
+# github.com/Azure/azure-storage-blob-go v0.6.0
 github.com/Azure/azure-storage-blob-go/azblob
 # github.com/BurntSushi/toml v0.3.1
 github.com/BurntSushi/toml
@@ -382,8 +382,6 @@ github.com/markbates/goth/providers/gitlab
 github.com/markbates/goth/providers/google
 github.com/markbates/goth/providers/openidConnect
 github.com/markbates/goth/providers/twitter
-# github.com/mattn/go-ieproxy v0.0.0-20190610004146-91bb50d98149
-github.com/mattn/go-ieproxy
 # github.com/mattn/go-isatty v0.0.8
 github.com/mattn/go-isatty
 # github.com/mattn/go-sqlite3 v1.11.0
@@ -535,7 +533,7 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-# gocloud.dev v0.18.1-0.20191226203252-61f2150e3d63
+# gocloud.dev v0.16.0
 gocloud.dev/aws
 gocloud.dev/blob
 gocloud.dev/blob/azureblob
@@ -590,7 +588,6 @@ golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/html/charset
 golang.org/x/net/http/httpguts
-golang.org/x/net/http/httpproxy
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
@@ -608,7 +605,6 @@ golang.org/x/oauth2/jwt
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-golang.org/x/sys/windows/registry
 golang.org/x/sys/windows/svc
 golang.org/x/sys/windows/svc/debug
 # golang.org/x/text v0.3.2

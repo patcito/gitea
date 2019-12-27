@@ -223,7 +223,7 @@ const sniffLen = 512
 // Writes may happen asynchronously, so the returned error can be nil
 // even if the actual write eventually fails. The write is only guaranteed to
 // have succeeded if Close returns no error.
-func (w *Writer) Write(p []byte) (int, error) {
+func (w *Writer) Write(p []byte) (n int, err error) {
 	if len(w.contentMD5) > 0 {
 		if _, err := w.md5hash.Write(p); err != nil {
 			return 0, err
@@ -243,18 +243,11 @@ func (w *Writer) Write(p []byte) (int, error) {
 
 	// Store p in w.buf and detect the content-type when the size of content in
 	// w.buf is at least 512 bytes.
-	n, err := w.buf.Write(p)
-	if err != nil {
-		return 0, err
-	}
+	w.buf.Write(p)
 	if w.buf.Len() >= sniffLen {
-		// Note that w.open will return the full length of the buffer; we don't want
-		// to return that as the length of this write since some of them were written in
-		// previous writes. Instead, we return the n from this write, above.
-		_, err := w.open(w.buf.Bytes())
-		return n, err
+		return w.open(w.buf.Bytes())
 	}
-	return n, nil
+	return len(p), nil
 }
 
 // Close closes the blob writer. The write operation is not guaranteed to have succeeded until
@@ -852,40 +845,35 @@ func (b *Bucket) SignedURL(ctx context.Context, key string, opts *SignedURLOptio
 	if !utf8.ValidString(key) {
 		return "", gcerr.Newf(gcerr.InvalidArgument, nil, "blob: SignedURL key must be a valid UTF-8 string: %q", key)
 	}
-	dopts := new(driver.SignedURLOptions)
 	if opts == nil {
-		opts = new(SignedURLOptions)
+		opts = &SignedURLOptions{}
 	}
-	switch {
-	case opts.Expiry < 0:
+	if opts.Expiry < 0 {
 		return "", gcerr.Newf(gcerr.InvalidArgument, nil, "blob: SignedURLOptions.Expiry must be >= 0 (%v)", opts.Expiry)
-	case opts.Expiry == 0:
-		dopts.Expiry = DefaultSignedURLExpiry
-	default:
-		dopts.Expiry = opts.Expiry
+	}
+	if opts.Expiry == 0 {
+		opts.Expiry = DefaultSignedURLExpiry
+	}
+	if opts.Method == "" {
+		opts.Method = http.MethodGet
 	}
 	switch opts.Method {
-	case "":
-		dopts.Method = http.MethodGet
-	case http.MethodGet, http.MethodPut, http.MethodDelete:
-		dopts.Method = opts.Method
+	case http.MethodGet:
+	case http.MethodPut:
+	case http.MethodDelete:
 	default:
-		return "", fmt.Errorf("blob: unsupported SignedURLOptions.Method %q", opts.Method)
+		return "", fmt.Errorf("unsupported SignedURLOptions.Method %q", opts.Method)
 	}
-	if opts.ContentType != "" && opts.Method != http.MethodPut {
-		return "", fmt.Errorf("blob: SignedURLOptions.ContentType must be empty for signing a %s URL", opts.Method)
+	dopts := driver.SignedURLOptions{
+		Expiry: opts.Expiry,
+		Method: opts.Method,
 	}
-	if opts.EnforceAbsentContentType && opts.Method != http.MethodPut {
-		return "", fmt.Errorf("blob: SignedURLOptions.EnforceAbsentContentType must be false for signing a %s URL", opts.Method)
-	}
-	dopts.ContentType = opts.ContentType
-	dopts.EnforceAbsentContentType = opts.EnforceAbsentContentType
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 	if b.closed {
 		return "", errClosed
 	}
-	url, err := b.b.SignedURL(ctx, key, dopts)
+	url, err := b.b.SignedURL(ctx, key, &dopts)
 	return url, wrapError(b.b, err, key)
 }
 
@@ -909,31 +897,9 @@ type SignedURLOptions struct {
 	// Expiry sets how long the returned URL is valid for.
 	// Defaults to DefaultSignedURLExpiry.
 	Expiry time.Duration
-
 	// Method is the HTTP method that can be used on the URL; one of "GET", "PUT",
 	// or "DELETE". Defaults to "GET".
 	Method string
-
-	// ContentType specifies the Content-Type HTTP header the user agent is
-	// permitted to use in the PUT request. It must match exactly. See
-	// EnforceAbsentContentType for behavior when ContentType is the empty string.
-	// If a bucket does not implement this verification, then it returns an
-	// Unimplemented error.
-	//
-	// Must be empty for non-PUT requests.
-	ContentType string
-
-	// If EnforceAbsentContentType is true and ContentType is the empty string,
-	// then PUTing to the signed URL will fail if the Content-Type header is
-	// present. Not all buckets support this: ones that do not will return an
-	// Unimplemented error.
-	//
-	// If EnforceAbsentContentType is false and ContentType is the empty string,
-	// then PUTing without a Content-Type header will succeed, but it is
-	// implementation-specific whether providing a Content-Type header will fail.
-	//
-	// Must be false for non-PUT requests.
-	EnforceAbsentContentType bool
 }
 
 // ReaderOptions sets options for NewReader and NewRangeReader.
