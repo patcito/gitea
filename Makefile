@@ -340,6 +340,12 @@ test-gcp: integrations.gcp.test
 test-gcp\#%: integrations.gcp.test
 	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./integrations.gcp.test -test.run $*
 
+test-gcp-git-http: integrations.gcp.test
+	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./integrations.gcp.test -test.run=TestGit/HTTP
+
+test-gcp-git-ssh: integrations.gcp.test
+	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./integrations.gcp.test -test.run=TestGit/SSH
+
 .PHONY: test-gcp-migration
 test-gcp-migration:  migrations.gcp.test
 	GITEA_ROOT=${CURDIR} GITEA_CONF=integrations/gcp.ini ./migrations.gcp.test
