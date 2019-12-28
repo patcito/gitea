@@ -297,9 +297,7 @@ steps:
       - "curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash"
       - apt-get install -y git-lfs
       - timeout -s ABRT 20m make test-gcp-migration
-      # Run TestGit in separated command, to prevent using all port range of the container
-      - timeout -s ABRT 20m make test-gcp#'[^T][^e][^s][^t][^G][^i][^t].+'
-      - timeout -s ABRT 20m make test-gcp#TestGit
+      - timeout -s ABRT 20m make test-gcp
     environment:
       GOPROXY: off
       TAGS: bindata
