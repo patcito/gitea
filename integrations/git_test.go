@@ -32,6 +32,10 @@ const (
 )
 
 func TestGit(t *testing.T) {
+	if os.Getenv("STORAGE_EMULATOR_HOST") != "" {
+		http.DefaultTransport.(*http.Transport).MaxConnsPerHost = 100
+	}
+
 	onGiteaRun(t, testGit)
 }
 
