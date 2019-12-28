@@ -26,12 +26,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const (
+var (
 	littleSize = 1024              // 1ko
 	bigSize    = 128 * 1024 * 1024 // 128Mo
 )
 
 func TestGit(t *testing.T) {
+	// Reduce big size for testing GCP, 128 Mo causes too many requests
+	// made to gcs fake server concurrently, CI container run out of resources.
+	if os.Getenv("STORAGE_EMULATOR_HOST") != "" {
+		bigSize = 4 * 1024 * 1024
+	}
 	onGiteaRun(t, testGit)
 }
 
