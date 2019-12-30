@@ -159,7 +159,7 @@ if BUCKET_URL NOT SET {
 func OpenBucket(ctx context.Context, path string) (*blob.Bucket, error) {
 	if filepath.IsAbs(path) {
 		if err := giteafs.AppFs.MkdirAll(path, 0700); err != nil {
-			log.Fatal("Failed to create '%s': %v", path, err)
+			return nil, fmt.Errorf("failed to create '%s': %v", path, err)
 		}
 		return blob.OpenBucket(ctx, "file://"+path)
 	}
