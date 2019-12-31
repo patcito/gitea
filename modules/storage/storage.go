@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -174,4 +175,66 @@ func OpenBucket(ctx context.Context, path string) (*blob.Bucket, error) {
 		return nil, err
 	}
 	return blob.PrefixedBucket(bucket, path), nil
+}
+
+// Migration migrates data between storage provider.
+type Migration struct {
+	Source      *blob.Bucket
+	Destination *blob.Bucket
+	prefix      string
+}
+
+// SetPrefix makes the Migration only processes files in source that match prefix.
+func (s *Migration) SetPrefix(prefix string) {
+	s.prefix = prefix
+}
+
+// NewMigration creates new Migration.
+func NewMigration(src, dst *blob.Bucket) *Migration {
+	s := &Migration{
+		Source:      src,
+		Destination: dst,
+		prefix:      "",
+	}
+	return s
+}
+
+// Run runs the storage migration from source to destination.
+func (s *Migration) Run(ctx context.Context) error {
+	iter := s.Source.List(&blob.ListOptions{Prefix: s.prefix})
+	for {
+		obj, err := iter.Next(ctx)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("iter.Next: %v", err)
+		}
+
+		if err := s.copy(ctx, obj.Key); err != nil {
+			return fmt.Errorf("s.copy: %v", err)
+		}
+		log.Trace("Migrated: %s", obj.Key)
+	}
+	return nil
+}
+
+func (s *Migration) copy(ctx context.Context, key string) error {
+	r, err := s.Source.NewReader(ctx, key, nil)
+	if err != nil {
+		return fmt.Errorf("s.Source.NewReader: %v", err)
+	}
+	defer r.Close()
+
+	w, err := s.Destination.NewWriter(ctx, key, nil)
+	if err != nil {
+		return fmt.Errorf("s.Source.Destination: %v", err)
+	}
+	defer w.Close()
+
+	if _, err := io.Copy(w, r); err != nil {
+		return fmt.Errorf("io.Copy: %v", err)
+	}
+
+	return w.Close()
 }
