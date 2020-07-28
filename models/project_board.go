@@ -5,6 +5,7 @@
 package models
 
 import (
+	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 	"code.gitea.io/gitea/modules/timeutil"
 
@@ -33,9 +34,10 @@ const (
 
 // ProjectBoard is used to represent boards on a project
 type ProjectBoard struct {
-	ID      int64 `xorm:"pk autoincr"`
-	Title   string
-	Default bool `xorm:"NOT NULL DEFAULT false"` // issues not assigned to a specific board will be assigned to this board
+	ID       int64 `xorm:"pk autoincr"`
+	Title    string
+	Default  bool `xorm:"NOT NULL DEFAULT false"` // issues not assigned to a specific board will be assigned to this board
+	Priority int
 
 	ProjectID int64 `xorm:"INDEX NOT NULL"`
 	CreatorID int64 `xorm:"NOT NULL"`
@@ -43,7 +45,8 @@ type ProjectBoard struct {
 	CreatedUnix timeutil.TimeStamp `xorm:"INDEX created"`
 	UpdatedUnix timeutil.TimeStamp `xorm:"INDEX updated"`
 
-	Issues []*Issue `xorm:"-"`
+	Issues        []*Issue        `xorm:"-"`
+	ProjectIssues []*ProjectIssue `xorm:"-"`
 }
 
 // IsProjectBoardTypeValid checks if the project board type is valid
@@ -178,7 +181,7 @@ func GetProjectBoards(projectID int64) (ProjectBoardList, error) {
 func getProjectBoards(e Engine, projectID int64) ([]*ProjectBoard, error) {
 	var boards = make([]*ProjectBoard, 0, 5)
 
-	if err := e.Where("project_id=? AND `default`=?", projectID, false).Find(&boards); err != nil {
+	if err := e.Where("project_id=? AND `default`=?", projectID, false).OrderBy("priority").Find(&boards); err != nil {
 		return nil, err
 	}
 
@@ -231,49 +234,43 @@ func SetDefaultBoard(projectID, boardID int64) error {
 }
 
 // LoadIssues load issues assigned to this board
-func (b *ProjectBoard) LoadIssues() (IssueList, error) {
-	issueList := make([]*Issue, 0, 10)
+func (b *ProjectBoard) LoadProjectIssues() ([]*ProjectIssue, error) {
+	var boardID int64
+	if !b.Default {
+		boardID = b.ID
 
-	if b.ID != 0 {
-		issues, err := Issues(&IssuesOptions{
-			ProjectBoardID: b.ID,
-			ProjectID:      b.ProjectID,
-		})
-		if err != nil {
-			return nil, err
+	} else {
+		// Issues without ProjectBoardID
+		boardID = 0
+	}
+	var projectIssuesDB []*ProjectIssue
+	var projectIssues []*ProjectIssue
+	err := x.Table("project_issue").Where("project_board_id = ?", boardID).
+		OrderBy("priority").Find(&projectIssuesDB)
+	for _, projectIssue := range projectIssuesDB {
+		if issue, err := getIssueByID(x, projectIssue.IssueID); err != nil {
+			log.Info("failed getting projectIssue's issue %v\n", err)
+		} else {
+			issue.LoadLabels()
+			issue.LoadMilestone()
+			issue.loadAssignees(x)
+			projectIssue.Issue = issue
+			projectIssues = append(projectIssues, projectIssue)
 		}
-		issueList = issues
 	}
 
-	if b.Default {
-		issues, err := Issues(&IssuesOptions{
-			ProjectBoardID: -1, // Issues without ProjectBoardID
-			ProjectID:      b.ProjectID,
-		})
-		if err != nil {
-			return nil, err
-		}
-		issueList = append(issueList, issues...)
-	}
-
-	if err := IssueList(issueList).LoadComments(); err != nil {
-		return nil, err
-	}
-
-	b.Issues = issueList
-	return issueList, nil
+	b.ProjectIssues = projectIssues
+	return projectIssues, err
 }
 
 // LoadIssues load issues assigned to the boards
-func (bs ProjectBoardList) LoadIssues() (IssueList, error) {
-	issues := make(IssueList, 0, len(bs)*10)
+func (bs ProjectBoardList) LoadIssues() error {
 	for i := range bs {
-		il, err := bs[i].LoadIssues()
+		il, err := bs[i].LoadProjectIssues()
 		if err != nil {
-			return nil, err
+			return err
 		}
-		bs[i].Issues = il
-		issues = append(issues, il...)
+		bs[i].ProjectIssues = il
 	}
-	return issues, nil
+	return nil
 }

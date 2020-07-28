@@ -808,3 +808,23 @@ func (f *DeadlineForm) Validate(req *http.Request, errs binding.Errors) binding.
 	ctx := context.GetContext(req)
 	return middlewares.Validate(errs, ctx.Data, f, ctx.Locale)
 }
+
+// UpdateBoardPriorityForm form for updating cards on drag and drop
+type UpdateBoardPriorityForm struct {
+	Boards []models.ProjectBoard `form:"boards" json:"boards"`
+}
+
+// Validate validates the fields
+func (f *UpdateBoardPriorityForm) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
+	return validate(errs, ctx.Data, f, ctx.Locale)
+}
+
+// UpdateIssuePriorityBoardForm form for updating issue on drag and drop
+type UpdateIssuePriorityBoardForm struct {
+	Issues []models.ProjectIssue `form:"issues" json:"issues"`
+}
+
+// Validate validates the fields
+func (f *UpdateIssuePriorityBoardForm) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
+	return validate(errs, ctx.Data, f, ctx.Locale)
+}
