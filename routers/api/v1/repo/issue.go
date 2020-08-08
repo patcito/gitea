@@ -52,6 +52,11 @@ func SearchIssues(ctx *context.APIContext) {
 	//   description: repository to prioritize in the results
 	//   type: integer
 	//   format: int64
+	// - name: not_in_project_id
+	//   in: query
+	//   description: project to exclude from search when searching issues to add to a project
+	//   type: integer
+	//   format: int64
 	// - name: type
 	//   in: query
 	//   description: filter by type (issues / pulls) if set
@@ -207,6 +212,7 @@ func SearchIssues(ctx *context.APIContext) {
 			IsPull:             isPull,
 			UpdatedBeforeUnix:  before,
 			UpdatedAfterUnix:   since,
+			NotInProjectID:     ctx.QueryInt64("not_in_project_id"),
 		}
 
 		// Filter for: Created by User, Assigned to User, Mentioning User, Review of User Requested
@@ -377,13 +383,14 @@ func ListIssues(ctx *context.APIContext) {
 	// This would otherwise return all issues if no issues were found by the search.
 	if len(keyword) == 0 || len(issueIDs) > 0 || len(labelIDs) > 0 {
 		issuesOpt := &models.IssuesOptions{
-			ListOptions:  listOptions,
-			RepoIDs:      []int64{ctx.Repo.Repository.ID},
-			IsClosed:     isClosed,
-			IssueIDs:     issueIDs,
-			LabelIDs:     labelIDs,
-			MilestoneIDs: mileIDs,
-			IsPull:       isPull,
+			ListOptions:    listOptions,
+			RepoIDs:        []int64{ctx.Repo.Repository.ID},
+			IsClosed:       isClosed,
+			IssueIDs:       issueIDs,
+			LabelIDs:       labelIDs,
+			MilestoneIDs:   mileIDs,
+			IsPull:         isPull,
+			NotInProjectID: ctx.QueryInt64("not_in_project_id"),
 		}
 
 		if issues, err = models.Issues(issuesOpt); err != nil {
