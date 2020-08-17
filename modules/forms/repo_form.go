@@ -811,7 +811,7 @@ func (f *DeadlineForm) Validate(req *http.Request, errs binding.Errors) binding.
 
 // UpdateBoardPriorityForm form for updating cards on drag and drop
 type UpdateBoardPriorityForm struct {
-	Boards []models.ProjectBoard `form:"boards" json:"boards"`
+	Boards []models.ProjectBoard
 }
 
 // Validate validates the fields

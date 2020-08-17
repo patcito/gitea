@@ -858,11 +858,11 @@ func RegisterRoutes(m *web.Route) {
 					m.Post("/edit", bindIgnErr(auth.CreateProjectForm{}), repo.EditProjectPost)
 					m.Post("/{action:open|close}", repo.ChangeProjectStatus)
 
-					m.Put("/updateIssuesPriorities", bindIgnErr(auth.UpdateIssuePriorityBoardForm{}), repo.UpdateBoardIssuePriority)
+					m.Put("/issue/priority", bindIgnErr(auth.UpdateIssuePriorityBoardForm{}), repo.UpdateBoardIssuePriority)
 					m.Post("/^:action(open|close)$", repo.ChangeProjectStatus)
 
 					m.Group("/:boardID", func() {
-						m.Put("updatePriorities", bindIgnErr(auth.UpdateBoardPriorityForm{}), repo.UpdateBoardsPriorityPost)
+						m.Put("board/priority", bindIgnErr(auth.UpdateBoardPriorityForm{}), repo.UpdateBoardsPriorityPost)
 						m.Put("", bindIgnErr(auth.EditProjectBoardTitleForm{}), repo.EditProjectBoardTitle)
 						m.Delete("", repo.DeleteProjectBoard)
 						m.Post("/default", repo.SetDefaultProjectBoard)

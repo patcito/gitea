@@ -52,7 +52,7 @@ func SearchIssues(ctx *context.APIContext) {
 	//   description: repository to prioritize in the results
 	//   type: integer
 	//   format: int64
-	// - name: not_in_project_id
+	// - name: exclude_project_id
 	//   in: query
 	//   description: project to exclude from search when searching issues to add to a project
 	//   type: integer
@@ -97,6 +97,10 @@ func SearchIssues(ctx *context.APIContext) {
 	//   in: query
 	//   description: page size of results
 	//   type: integer
+	// - name: render_emoji_title
+	//   in: query
+	//   description: render emojis in issue title
+	//   type: string
 	// responses:
 	//   "200":
 	//     "$ref": "#/responses/IssueList"
@@ -115,6 +119,16 @@ func SearchIssues(ctx *context.APIContext) {
 		isClosed = util.OptionalBoolNone
 	default:
 		isClosed = util.OptionalBoolFalse
+	}
+
+	var renderEmojiTitle util.OptionalBool
+	switch ctx.Query("render_emoji_title") {
+	case "true":
+		renderEmojiTitle = util.OptionalBoolTrue
+	case "false":
+		renderEmojiTitle = util.OptionalBoolFalse
+	default:
+		renderEmojiTitle = util.OptionalBoolFalse
 	}
 
 	// find repos user can access (for issue search)
@@ -212,7 +226,8 @@ func SearchIssues(ctx *context.APIContext) {
 			IsPull:             isPull,
 			UpdatedBeforeUnix:  before,
 			UpdatedAfterUnix:   since,
-			NotInProjectID:     ctx.QueryInt64("not_in_project_id"),
+			ExcludeProjectID:   ctx.QueryInt64("exclude_project_id"),
+			RenderEmojiTitle:   renderEmojiTitle,
 		}
 
 		// Filter for: Created by User, Assigned to User, Mentioning User, Review of User Requested
@@ -297,6 +312,10 @@ func ListIssues(ctx *context.APIContext) {
 	//   in: query
 	//   description: page size of results
 	//   type: integer
+	// - name: render_emoji_title
+	//   in: query
+	//   description: render emojis in issue title
+	//   type: string
 	// responses:
 	//   "200":
 	//     "$ref": "#/responses/IssueList"
@@ -309,6 +328,16 @@ func ListIssues(ctx *context.APIContext) {
 		isClosed = util.OptionalBoolNone
 	default:
 		isClosed = util.OptionalBoolFalse
+	}
+
+	var renderEmojiTitle util.OptionalBool
+	switch ctx.Query("render_emoji_title") {
+	case "true":
+		renderEmojiTitle = util.OptionalBoolTrue
+	case "false":
+		renderEmojiTitle = util.OptionalBoolFalse
+	default:
+		renderEmojiTitle = util.OptionalBoolFalse
 	}
 
 	var issues []*models.Issue
@@ -383,14 +412,15 @@ func ListIssues(ctx *context.APIContext) {
 	// This would otherwise return all issues if no issues were found by the search.
 	if len(keyword) == 0 || len(issueIDs) > 0 || len(labelIDs) > 0 {
 		issuesOpt := &models.IssuesOptions{
-			ListOptions:    listOptions,
-			RepoIDs:        []int64{ctx.Repo.Repository.ID},
-			IsClosed:       isClosed,
-			IssueIDs:       issueIDs,
-			LabelIDs:       labelIDs,
-			MilestoneIDs:   mileIDs,
-			IsPull:         isPull,
-			NotInProjectID: ctx.QueryInt64("not_in_project_id"),
+			ListOptions:      listOptions,
+			RepoIDs:          []int64{ctx.Repo.Repository.ID},
+			IsClosed:         isClosed,
+			IssueIDs:         issueIDs,
+			LabelIDs:         labelIDs,
+			MilestoneIDs:     mileIDs,
+			IsPull:           isPull,
+			ExcludeProjectID: ctx.QueryInt64("exclude_project_id"),
+			RenderEmojiTitle: renderEmojiTitle,
 		}
 
 		if issues, err = models.Issues(issuesOpt); err != nil {

@@ -281,6 +281,8 @@ var migrations = []Migration{
 	NewMigration("Where Password is Valid with Empty String delete it", recalculateUserEmptyPWD),
 	// v167 -> v168
 	NewMigration("Add user redirect", addUserRedirect),
+	// project-enhancement
+	NewMigration("Add projects boards and issues priorities", addProjectsIssuesBoardsPriority),
 }
 
 // GetCurrentDBVersion returns the current db version

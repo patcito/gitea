@@ -154,7 +154,7 @@ func NewFuncMap() []template.FuncMap {
 		"RenderCommitMessageLinkSubject": RenderCommitMessageLinkSubject,
 		"RenderCommitBody":               RenderCommitBody,
 		"RenderIssueTitle":               RenderIssueTitle,
-		"RenderEmoji":                    RenderEmoji,
+		"RenderEmoji":                    markup.RenderEmoji,
 		"RenderEmojiPlain":               emoji.ReplaceAliases,
 		"ReactionToEmoji":                ReactionToEmoji,
 		"RenderNote":                     RenderNote,
@@ -372,7 +372,7 @@ func NewFuncMap() []template.FuncMap {
 			html := `<span class="labels-list">`
 			for _, label := range labels {
 				html += fmt.Sprintf("<div class='ui label' style='color: %s; background-color: %s'>%s</div> ",
-					label.ForegroundColor(), label.Color, RenderEmoji(label.Name))
+					label.ForegroundColor(), label.Color, markup.RenderEmoji(label.Name))
 			}
 			html += "</span>"
 			return template.HTML(html)
@@ -709,16 +709,6 @@ func RenderIssueTitle(text, urlPrefix string, metas map[string]string) template.
 	renderedText, err := markup.RenderIssueTitle([]byte(template.HTMLEscapeString(text)), urlPrefix, metas)
 	if err != nil {
 		log.Error("RenderIssueTitle: %v", err)
-		return template.HTML("")
-	}
-	return template.HTML(renderedText)
-}
-
-// RenderEmoji renders html text with emoji post processors
-func RenderEmoji(text string) template.HTML {
-	renderedText, err := markup.RenderEmoji([]byte(template.HTMLEscapeString(text)))
-	if err != nil {
-		log.Error("RenderEmoji: %v", err)
 		return template.HTML("")
 	}
 	return template.HTML(renderedText)

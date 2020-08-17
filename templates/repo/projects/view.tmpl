@@ -11,14 +11,14 @@
 			</div>
 			<div class="column right aligned">
 				{{if and .CanWriteProjects (not .Repository.IsArchived) .PageIsProjects}}
-				<button class="ui green button show-modal item"
-                   data-modal="#new-board-item">
-                   <i class="add icon"></i>
-                   {{.i18n.Tr "new_project_board"}}</button>
-				<button class="ui green button show-modal item" 
-                   id="new-project-issue-item">
-                   <i class="add icon"></i>
-                   {{.i18n.Tr "add_project_issue"}}</button>
+				<button class="ui green button show-modal item" data-modal="#new-board-item">
+					{{svg "octicon-plus" 16}}
+					{{.i18n.Tr "new_project_board"}}
+				</button>
+				<button class="ui green button show-modal item" id="new-project-issue-item">
+					{{svg "octicon-plus" 16}}
+					{{.i18n.Tr "add_project_issue"}}
+				</button>
 				{{end}}
 				<div class="ui small modal" id="new-board-item">
 					<div class="header">
@@ -77,11 +77,11 @@
 	<div class="ui container fluid padded" id="project-board">
 		<div id="current-card-details-input"></div>
 		<div class="board" id="board-container" data-repourl="{{.RepoLink}}" data-projectid="{{.Project.ID}}" data-url="{{.RepoLink}}/projects/{{$.Project.ID}}">
-			<div class="ui segment ignore-elements" id="current-card-details"></div>
+			<div class="ui segment ignore-elements invisible" id="current-card-details"></div>
 			{{ range $board := .Boards }}
 
 			<div class="ui segment board-column {{if eq .ID 0}}ignore-elements{{end}}"
-                 data-column-priority="{{.Priority}} "data-column-id="{{.ID}}">
+				data-column-priority="{{.Priority}} "data-column-id="{{.ID}}">
 				<div class="board-column-header">
 					<div class="ui large label board-label">{{.Title}}</div>
 					{{if and $.CanWriteProjects (not $.Repository.IsArchived) $.PageIsProjects (ne .ID 0)}}
@@ -94,12 +94,6 @@
 									{{svg "octicon-pencil"}}
 									{{$.i18n.Tr "repo.projects.board.edit"}}
 								</a>
-								{{if not .Default}}
-									<a class="item show-modal button" data-modal="#set-default-project-board-modal-{{.ID}}">
-										{{svg "octicon-pin"}}
-										{{$.i18n.Tr "repo.projects.board.set_default"}}
-									</a>
-								{{end}}
 								<a class="item show-modal button" data-modal="#delete-board-modal-{{.ID}}">
 									{{svg "octicon-trashcan"}}
 									{{$.i18n.Tr "repo.projects.board.delete"}}
@@ -124,34 +118,24 @@
 									</div>
 								</div>
 
-								<div class="ui basic modal" id="set-default-project-board-modal-{{.ID}}">
-									<div class="ui icon header">
-										{{$.i18n.Tr "repo.projects.board.set_default"}}
-									</div>
-									<div class="content center">
-										<label>
-											{{$.i18n.Tr "repo.projects.board.set_default_desc"}}
-										</label>
-									</div>
-									<div class="text right actions">
-										<div class="ui cancel button">{{$.i18n.Tr "settings.cancel"}}</div>
-										<button class="ui red button set-default-project-board" data-url="{{$.RepoLink}}/projects/{{$.Project.ID}}/{{.ID}}/default">{{$.i18n.Tr "repo.projects.board.set_default"}}</button>
-									</div>
-								</div>
-
 								<div class="ui basic modal" id="delete-board-modal-{{.ID}}">
 									<div class="ui icon header">
 										{{$.i18n.Tr "repo.projects.board.delete"}}
 									</div>
 									<div class="content center">
-										<label>
-											{{$.i18n.Tr "repo.projects.board.deletion_desc"}}
-										</label>
+										<input type="hidden" name="action" value="delete">
+										<div class="field">
+											<label>
+												{{$.i18n.Tr "repo.projects.board.deletion_desc"}}
+											</label>
+										</div>
 									</div>
-									<div class="text right actions">
-										<div class="ui cancel button">{{$.i18n.Tr "settings.cancel"}}</div>
-										<button class="ui red button delete-project-board" data-url="{{$.RepoLink}}/projects/{{$.Project.ID}}/{{.ID}}">{{$.i18n.Tr "repo.projects.board.delete"}}</button>
-									</div>
+									<form class="ui form" method="post">
+										<div class="text right actions">
+											<div class="ui cancel button">{{$.i18n.Tr "settings.cancel"}}</div>
+											<button class="ui red button delete-project-board" data-url="{{$.RepoLink}}/projects/{{$.Project.ID}}/{{.ID}}">{{$.i18n.Tr "repo.projects.board.delete"}}</button>
+										</div>
+									</form>
 								</div>
 							</div>
 						</div>
@@ -168,7 +152,7 @@
 
 					<!-- start issue card -->
 					<div class="card board-card"
-                        data-issueid="{{.Issue.ID}}"
+						data-issueid="{{.Issue.ID}}"
 						data-id="{{.ID}}" data-priority="{{.Priority}}">
 						<div class="content">
 							<div class="header">
@@ -178,29 +162,19 @@
 									{{else}}{{svg "octicon-issue-opened"}}
 									{{end}}
 								</span>
-								<a class="project-board-title" href="{{$.RepoLink}}/{{if .Issue.IsPull}}pulls{{else}}issues{{end}}/{{.Issue.Index}}" data-url="{{$.RepoLink}}/{{if .Issue.IsPull}}pulls{{else}}issues{{end}}/{{.Issue.Index}}/sidebar/true">#{{.Issue.Index}} {{.Issue.Title}}</a>
+								<a class="project-board-title" href="{{$.RepoLink}}/{{if .Issue.IsPull}}pulls{{else}}issues{{end}}/{{.Issue.Index}}" data-url="{{$.RepoLink}}/{{if .Issue.IsPull}}pulls{{else}}issues{{end}}/{{.Issue.Index}}?sidebar=true">#{{.Issue.Index}} {{RenderEmoji .Issue.Title}}</a>
 							</div>
-							{{- if .MilestoneID }}
 							<div class="meta">
 								{{ if .Issue.MilestoneID }}
 								<a class="milestone" href="{{$.RepoLink}}/milestone/{{ .Issue.MilestoneID}}">
 									{{svg "octicon-milestone"}} {{ .Issue.Milestone.Name }}
 								</a>
+								{{ end }}
 							</div>
-							{{- end }}
-							{{- range index $.LinkedPRs .ID }}
-							<div class="meta">
-								<a href="{{$.RepoLink}}/pulls/{{ .ID }}">
-									<span class="{{if .PullRequest.HasMerged}}purple{{else if .IsClosed}}red{{else}}green{{end}}">{{svg "octicon-git-merge"}}</span>
-									{{ .Title}} (#{{ .ID }})
-								</a>
-							</div>
-							{{- end }}
 						</div>
 						<div class="extra content">
 							{{ range .Issue.Labels }}
-							<a class="ui label has-emoji" href="{{$.RepoLink}}/issues?labels={{.ID}}" style="color: {{.ForegroundColor}}; background-color: {{.Color}}; margin-bottom: 3px;"
-                            title="{{.Description}}">{{.Name}}</a>
+							<a class="ui label has-emoji" href="{{$.RepoLink}}/issues?labels={{.ID}}" style="color: {{.ForegroundColor}}; background-color: {{.Color}}; margin-bottom: 3px;" title="{{.Description}}">{{.Name}}</a>
 							{{ end }}
 						</div>
 					</div>

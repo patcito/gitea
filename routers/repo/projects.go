@@ -285,32 +285,15 @@ func ViewProject(ctx *context.Context) {
 		boards[0].Title = ctx.Tr("repo.projects.type.uncategorized")
 	}
 
-	if err = allBoards.LoadIssues(); err != nil {
+	if err = boards.LoadIssues(); err != nil {
 		ctx.ServerError("LoadIssuesOfBoards", err)
 		return
 	}
-	ctx.Data["Issues"] = issueList
-
-	linkedPrsMap := make(map[int64][]*models.Issue)
-	for _, issue := range issueList {
-		var referencedIds []int64
-		for _, comment := range issue.Comments {
-			if comment.RefIssueID != 0 && comment.RefIsPull {
-				referencedIds = append(referencedIds, comment.RefIssueID)
-			}
-		}
-
-		if len(referencedIds) > 0 {
-			if linkedPrs, err := models.Issues(&models.IssuesOptions{
-				IssueIDs: referencedIds,
-				IsPull:   util.OptionalBoolTrue,
-			}); err == nil {
-				linkedPrsMap[issue.ID] = linkedPrs
-			}
-		}
+	err = boards.LoadIssues()
+	if err != nil {
+		ctx.ServerError("LoadIssuesOfBoards", err)
+		return
 	}
-	ctx.Data["LinkedPRs"] = linkedPrsMap
-
 	project.RenderedContent = string(markdown.Render([]byte(project.Description), ctx.Repo.RepoLink, ctx.Repo.Repository.ComposeMetas()))
 
 	ctx.Data["CanWriteProjects"] = ctx.Repo.Permission.CanWrite(models.UnitTypeProjects)
@@ -318,7 +301,9 @@ func ViewProject(ctx *context.Context) {
 	ctx.Data["Boards"] = boards
 	ctx.Data["PageIsProjects"] = true
 	ctx.Data["RequiresDraggable"] = true
-	project.LoadRepository()
+	if err := project.LoadRepository(); err != nil {
+		log.Error("failed loading project's repo %v\n", err)
+	}
 	if project.Repo != nil && project.Repo.ID != 0 {
 		ctx.Data["Repo"] = project.Repo
 	}
@@ -659,7 +644,11 @@ func UpdateBoardsPriorityPost(ctx *context.Context, form auth.UpdateBoardPriorit
 	}
 
 	boards := form
-	models.UpdateBoards(form.Boards)
+	if err := models.UpdateBoardsPriority(form.Boards); err != nil {
+		log.Error("failed updating boards %v", err)
+		ctx.JSON(500, err)
+		return
+	}
 	ctx.JSON(200, boards)
 }
 
@@ -673,9 +662,9 @@ func UpdateBoardIssuePriority(ctx *context.Context, form auth.UpdateIssuePriorit
 		return
 	}
 
-	err, issues := models.UpdateBoardIssues(form.Issues)
+	issues, err := models.UpdateBoardIssuesPriority(form.Issues)
 	if err != nil {
-		log.Info("failed updating issues %v", err)
+		log.Error("failed updating issues %v", err)
 	}
 
 	ctx.JSON(200, issues)
