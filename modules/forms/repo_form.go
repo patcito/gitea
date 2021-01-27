@@ -815,8 +815,9 @@ type UpdateBoardPriorityForm struct {
 }
 
 // Validate validates the fields
-func (f *UpdateBoardPriorityForm) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
-	return validate(errs, ctx.Data, f, ctx.Locale)
+func (f *UpdateBoardPriorityForm) Validate(req *http.Request, errs binding.Errors) binding.Errors {
+	ctx := context.GetContext(req)
+	return middlewares.Validate(errs, ctx.Data, f, ctx.Locale)
 }
 
 // UpdateIssuePriorityBoardForm form for updating issue on drag and drop
@@ -825,6 +826,7 @@ type UpdateIssuePriorityBoardForm struct {
 }
 
 // Validate validates the fields
-func (f *UpdateIssuePriorityBoardForm) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
-	return validate(errs, ctx.Data, f, ctx.Locale)
+func (f *UpdateIssuePriorityBoardForm) Validate(req *http.Request, errs binding.Errors) binding.Errors {
+	ctx := context.GetContext(req)
+	return middlewares.Validate(errs, ctx.Data, f, ctx.Locale)
 }

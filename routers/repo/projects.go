@@ -634,7 +634,8 @@ func CreateProjectPost(ctx *context.Context, form auth.UserCreateProjectForm) {
 }
 
 // UpdateBoardsPriorityPost takes a slice of boards and updates their priority order on drag and drop
-func UpdateBoardsPriorityPost(ctx *context.Context, form auth.UpdateBoardPriorityForm) {
+func UpdateBoardsPriorityPost(ctx *context.Context) {
+	form := web.GetForm(ctx).(*auth.UpdateBoardPriorityForm)
 	if ctx.Written() {
 		return
 	}
@@ -653,7 +654,8 @@ func UpdateBoardsPriorityPost(ctx *context.Context, form auth.UpdateBoardPriorit
 }
 
 // UpdateBoardIssuePriority takes a slice of ProjectIssue and updates their priority order on drag and drop
-func UpdateBoardIssuePriority(ctx *context.Context, form auth.UpdateIssuePriorityBoardForm) {
+func UpdateBoardIssuePriority(ctx *context.Context) {
+	form := web.GetForm(ctx).(*auth.UpdateIssuePriorityBoardForm)
 	if ctx.Written() {
 		return
 	}
